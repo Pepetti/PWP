@@ -9,18 +9,22 @@ const User = require('../models/user');
 const generators = require('../generators');
 const autoincrement = require('mongoose-sequence')(mongoose);
 
+//Connect to mongoDB database
 mongoose.connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useFindAndModify: false,
     useCreateIndex: true,
 });
+//Once the connection is open we log it to the console.
+//If an error occurs with the connection we log that to the console
 mongoose.connection
     .once('open', () => console.log('Connected'))
     .on('error', error => {
         console.warn('Error: ', error);
     });
 
-//Hook to run before any test
+//Hook to run before any test. this creates a new user document and if one already exists
+//we let it be
 beforeEach(done => {
     console.log('Creating new user before test...');
     const usr = new User({
@@ -65,15 +69,22 @@ beforeEach(done => {
             done();
         })
         .catch(err => {
-            console.log(
-                'Error while saving test user to database. Error: ',
-                err,
-            );
-            done();
+            if (err.name === 'MongoError' && err.code === 11000) {
+                console.log('User already exists, continuing...');
+                done();
+            } else {
+                console.log(
+                    'An error occurred while saving test user to database: ',
+                    err,
+                );
+                done();
+            }
         });
 });
 
-//Hook to run after any test
+//Hook to run after any test.
+//In this hook we drop the user collection, so that the test can be started from a fresh
+//user instance
 afterEach(done => {
     console.log('Dropping user after test...');
     mongoose.connection.collections.users.drop(() => {

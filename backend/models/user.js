@@ -9,10 +9,10 @@ const DaySchema = require('./day.js');
 
 //Schema for use
 const UserSchema = new Schema({
-    firstName: String, //First name of the user
-    lastName: String, //Last name of the user
-    email: String, //User email -- unique
-    password: String, //Password for the user. Asked upon login
+    firstName: {type: String, required: true}, //First name of the user
+    lastName: {type: String, required: true}, //Last name of the user
+    email: {type: String, unique: true, requried: true, dropDups: true}, //User email -- unique
+    password: {type: String, required: true}, //Password for the user. Asked upon login
     days: [DaySchema], //Days
 });
 
