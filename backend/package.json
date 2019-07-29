@@ -1,18 +1,22 @@
 {
-  "name": "backend",
-  "version": "1.0.0",
-  "description": "Backend for the sports tracker",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Oskari Kotajärvi & Pirkka-Pekka Launonen",
-  "license": "MIT",
-  "dependencies": {
-    "bcrypt": "^3.0.6",
-    "body-parser": "^1.19.0",
-    "dotenv": "^8.0.0",
-    "express": "^4.17.1",
-    "mongoose": "^5.6.6"
-  }
+    "name": "backend",
+    "version": "1.0.0",
+    "description": "Backend for the sports tracker",
+    "main": "index.js",
+    "scripts": {
+        "test": "nodemon --exec 'mocha -R min'"
+    },
+    "author": "Oskari Kotajärvi & Pirkka-Pekka Launonen",
+    "license": "MIT",
+    "dependencies": {
+        "bcrypt": "^3.0.6",
+        "body-parser": "^1.19.0",
+        "dotenv": "^8.0.0",
+        "express": "^4.17.1",
+        "mongoose": "^5.6.6",
+        "mongoose-sequence": "^5.1.0"
+    },
+    "devDependencies": {
+        "mocha": "^6.2.0"
+    }
 }

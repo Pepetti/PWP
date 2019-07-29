@@ -25,9 +25,7 @@ User.find({_id: '5d38e1a35aec936fd5f25c21'})
 
 User.update(
     {email: 'prikkapekka@gmail.com'},
-    {
-        email: 'pirkkapekka@gmail.com',
-    },
+    {email: 'pirkkapekka@gmail.com'},
 ).then(doc => {
     console.log(doc);
 });
