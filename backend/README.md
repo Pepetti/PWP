@@ -29,3 +29,6 @@ After this you have to create a `.env` file to the backend root directory. The f
 MONGODB_URI=<your mongodb connect url here>
 PORT=<The port you want to run the application on> //Not yet in use
 ```
+If you want to populate the database with example data, you can run the `populate.js` file located in the _DL2_ directory. Keep in mind that if you run the tests after that, the database will be left empty after the tests.
+
+To run tests for the database run the command `npm run test`. This will run the written tests for the database. If you want to take a closer look at the test code, they can be found in the _test_ directory.
