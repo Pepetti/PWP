@@ -1,0 +1,19 @@
+.registerBtn {
+    background-color: #d16334;
+    color: white;
+    font-size: 20px;
+}
+
+.loginBtn-container {
+    padding-top: 10px;
+}
+
+.accountQuestion {
+    padding-bottom: 5px;
+}
+
+.loginBtn {
+    background-color: #d13734;
+    color: white;
+    font-size: 20px;
+}
