@@ -99,4 +99,19 @@ describe('Update a user', () => {
                 });
             });
     });
+    //Trying to update a field that does not exist
+    it('try to update a field that does not exist', done => {
+        User.findOne({email: 'example.user1@email.com'}).then(user => {
+            const newField = 'ThisFieldDoesNotExist';
+            user.field1 = newField;
+            user.save().then(doc => {
+                User.findOne({email: 'example.user1@email.com'}).then(doc => {
+                    //If the field is undefined it does not exist. Mongoose doesn't
+                    //push fields that are not included in the schema
+                    assert(doc.field1 === undefined);
+                    done();
+                });
+            });
+        });
+    });
 });

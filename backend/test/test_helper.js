@@ -79,6 +79,7 @@ beforeEach(done => {
                 );
                 done();
             }
+            done();
         });
 });
 

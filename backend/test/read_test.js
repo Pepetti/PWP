@@ -18,15 +18,15 @@ describe('Reading user details', () => {
     });
     //Tries to find a user that doesn't exist
     it('find user non-existent user', done => {
-        User.findOne({email: 'doesnotexist'}).then(result => {
-            if (result === null) {
-                console.log(
-                    'user with the email: doesnotexist, does not exist',
-                );
-                done();
-            } else {
-                throw new Error();
-            }
-        });
+        User.findOne({email: 'doesnotexist'})
+            .then(result => {
+                const days = result.days;
+            })
+            .catch(err => {
+                if (err instanceof TypeError) {
+                    console.log('Catched TypeError, user deos not exist...');
+                    done();
+                }
+            });
     });
 });
