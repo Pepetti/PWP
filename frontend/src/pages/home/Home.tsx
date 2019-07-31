@@ -5,7 +5,7 @@ import {Link} from 'react-router-dom';
 
 const Home: React.FC = () => {
     return (
-        <div className="container">
+        <div className="container homeContainer">
             <div className="card">
                 <div className="card-body">
                     <div className="card-title">
