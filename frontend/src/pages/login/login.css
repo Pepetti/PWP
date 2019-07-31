@@ -1,19 +1,15 @@
-.register-container {
-    padding-top: 20px;
-}
-
-.registerform-container {
+.loginform-container {
     display: flex;
     justify-content: center;
 }
 
-.registerform div {
+.loginform div {
     display: flex;
     flex-direction: column;
     margin: 5px, 0;
 }
 
-.registerform-group {
+.loginform-group {
     position: relative;
     margin-bottom: 1.5rem;
     width: 400;
@@ -21,7 +17,7 @@
     min-width: 200;
 }
 
-.registerform-control-placeholder {
+.loginform-control-placeholder {
     position: absolute;
     top: 0;
     padding: 7px 0 0 13px;
@@ -29,25 +25,15 @@
     opacity: 0.5;
 }
 
-.registerform-control {
+.loginform-control {
     margin-bottom: 8px;
     height: 2rem;
     width: 450px;
 }
 
-.registerform-control:focus + .registerform-control-placeholder,
-.registerform-control:valid + .registerform-control-placeholder {
+.loginform-control:focus + .loginform-control-placeholder,
+.loginform-control:valid + .loginform-control-placeholder {
     font-size: 75%;
     transform: translate3d(0, -100%, 0);
     opacity: 1;
-}
-
-.register {
-    padding-top: 50px;
-}
-
-.submitBtn {
-    background-color: #d13734;
-    color: white;
-    font-size: 20px;
 }

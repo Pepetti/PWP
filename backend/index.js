@@ -7,19 +7,15 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyparser = require('body-parser');
-const passport = require('passport');
+const cookieparser = require('cookie-parser');
 
 const app = express();
 
-//Passport config
-require('./config/passport')(passport);
+//Cookie parser
+app.use(cookieparser());
 
 //Bodyparser
 app.use(bodyparser.json());
-
-//Passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
 
 //Routes
 app.use('/', require('./routes/index'));

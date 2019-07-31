@@ -42,7 +42,7 @@ const RegisterForm: React.FC = () => {
             errors.forEach((error: any) => {
                 messages.push(
                     <div
-                        className="alert alert-warning alert-dismissible fade show"
+                        className="alert alert-danger alert-dismissible fade show"
                         role="alert"
                         key={error.error}>
                         {error.error}
@@ -102,7 +102,7 @@ const RegisterForm: React.FC = () => {
                     <div className="registerform-input-fields">
                         <div className="registerform-group">
                             <input
-                                className="form-control"
+                                className="registerform-control"
                                 type="text"
                                 name="firstName"
                                 value={firstName}
@@ -110,14 +110,14 @@ const RegisterForm: React.FC = () => {
                                 required
                             />
                             <label
-                                className="form-control-placeholder"
+                                className="registerform-control-placeholder"
                                 htmlFor="firstName">
                                 First Name
                             </label>
                         </div>
                         <div className="registerform-group">
                             <input
-                                className="form-control"
+                                className="registerform-control"
                                 type="text"
                                 name="lastName"
                                 value={lastName}
@@ -125,14 +125,14 @@ const RegisterForm: React.FC = () => {
                                 required
                             />
                             <label
-                                className="form-control-placeholder"
+                                className="registerform-control-placeholder"
                                 htmlFor="lastName">
                                 Last Name
                             </label>
                         </div>
                         <div className="registerform-group">
                             <input
-                                className="form-control"
+                                className="registerform-control"
                                 type="text"
                                 name="email"
                                 value={email}
@@ -140,14 +140,14 @@ const RegisterForm: React.FC = () => {
                                 required
                             />
                             <label
-                                className="form-control-placeholder"
+                                className="registerform-control-placeholder"
                                 htmlFor="email">
                                 Email
                             </label>
                         </div>
                         <div className="registerform-group">
                             <input
-                                className="form-control"
+                                className="registerform-control"
                                 type="text"
                                 name="email2"
                                 value={email2}
@@ -155,14 +155,14 @@ const RegisterForm: React.FC = () => {
                                 required
                             />
                             <label
-                                className="form-control-placeholder"
+                                className="registerform-control-placeholder"
                                 htmlFor="email2">
                                 Confirm Email
                             </label>
                         </div>
                         <div className="registerform-group">
                             <input
-                                className="form-control"
+                                className="registerform-control"
                                 type="password"
                                 name="password"
                                 value={password}
@@ -170,14 +170,14 @@ const RegisterForm: React.FC = () => {
                                 required
                             />
                             <label
-                                className="form-control-placeholder"
+                                className="registerform-control-placeholder"
                                 htmlFor="password">
                                 Password
                             </label>
                         </div>
                         <div className="registerform-group">
                             <input
-                                className="form-control"
+                                className="registerform-control"
                                 type="password"
                                 name="password2"
                                 value={password2}
@@ -185,7 +185,7 @@ const RegisterForm: React.FC = () => {
                                 required
                             />
                             <label
-                                className="form-control-placeholder"
+                                className="registerform-control-placeholder"
                                 htmlFor="password2">
                                 Confirm password
                             </label>

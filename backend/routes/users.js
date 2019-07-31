@@ -2,24 +2,46 @@
  * @file users.js
  * @description Contains routes for user functionality
  */
-
+require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
-const passport = require('passport');
+const jwt = require('jsonwebtoken');
+const withAuth = require('../config/cookieMiddleware');
 
 //Login page
-router.get('/login', (req, res) => {
-    res.send('Login');
+router.post('/login', (req, res) => {
+    const {email, pass} = req.body;
+    User.findOne({email: email}).then((user, err) => {
+        if (err) {
+            console.error(err);
+            res.status(500).send({
+                error: 'Internal error, please try again',
+                validationError: false,
+            });
+        } else if (!user) {
+            res.status(401).send({
+                error: 'Incorrect email or password!',
+                validationError: true,
+            });
+        } else {
+            if (!bcrypt.compareSync(pass, user.password)) {
+                res.status(401).send({error: 'Incorrect email or password!'});
+            } else {
+                const payload = {email};
+                const token = jwt.sign(payload, process.env.SECRET, {
+                    expiresIn: '1h',
+                });
+                res.cookie('token', token, {httpOnly: true}).sendStatus(200);
+            }
+        }
+    });
 });
 
 //Login handle
-router.post('/login', (req, res, next) => {
-    passport.authenticate('local', {
-        successRedirect: '/dashboard',
-        failureRedirect: '/users/login',
-    })(req, res, next);
+router.get('/login', (req, res) => {
+    console.log('jee');
 });
 
 //Register page
@@ -125,6 +147,11 @@ router.post('/register', (req, res) => {
             });
         }
     }
+});
+
+//Dashboard
+router.get('/users/dashboard', withAuth, (req, res) => {
+    res.send('got ze zegret');
 });
 
 module.exports = router;
