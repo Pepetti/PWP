@@ -18,7 +18,6 @@ app.use(cookieparser());
 app.use(bodyparser.json());
 
 //Routes
-app.use('/', require('./routes/index'));
 app.use('/users', require('./routes/users'));
 
 mongoose.connect(process.env.MONGODB_URI, {

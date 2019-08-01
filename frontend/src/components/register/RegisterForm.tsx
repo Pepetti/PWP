@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {Redirect} from 'react-router-dom';
 
 const RegisterForm: React.FC = () => {
@@ -10,15 +10,10 @@ const RegisterForm: React.FC = () => {
     const [email2, setEmail2] = useState('');
     const [registered, setReg] = useState(false);
     const [errors, setErrors] = useState([]);
-    const [_isMounted, setMount] = useState(false);
-
-    useEffect(() => {
-        setMount(true);
-    }, []);
 
     //Handler for inputfield changes
     const onInputChange = (e: React.FormEvent<HTMLInputElement>) => {
-        if (e.currentTarget.name === 'firstName' && _isMounted) {
+        if (e.currentTarget.name === 'firstName') {
             setFirstName(e.currentTarget.value);
         }
         if (e.currentTarget.name === 'lastName') {
