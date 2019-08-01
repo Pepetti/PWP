@@ -4,7 +4,16 @@ import React from 'react';
 
 import LoginForm from '../../components/login/LoginForm';
 
-const Login: React.FC = () => {
+interface ILoginPage {
+    login: (
+        firstname: String,
+        lastname: String,
+        email: String,
+        days: Array<any>,
+    ) => void;
+}
+
+const Login: React.FC<ILoginPage> = ({login}) => {
     return (
         <div className="container login-container">
             <div className="card">
@@ -29,9 +38,15 @@ const Login: React.FC = () => {
                     </div>
                     <div className="card-body">
                         <div className="row justify-content-center">
-                            <LoginForm />
+                            <LoginForm login={login} />
                         </div>
                     </div>
+                    <footer className="card-footer text-muted">
+                        <p>
+                            Don't have an account? -{' '}
+                            <a href="/users/register">Register</a>
+                        </p>
+                    </footer>
                 </div>
             </div>
         </div>

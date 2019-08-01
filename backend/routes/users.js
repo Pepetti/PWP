@@ -8,11 +8,12 @@ const router = express.Router();
 const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const withAuth = require('../config/cookieMiddleware');
+const verifyToken = require('../config/verifyToken');
 
 //Login page
 router.post('/login', (req, res) => {
     const {email, pass} = req.body;
+    let errors = [];
     User.findOne({email: email}).then((user, err) => {
         if (err) {
             console.error(err);
@@ -21,19 +22,23 @@ router.post('/login', (req, res) => {
                 validationError: false,
             });
         } else if (!user) {
-            res.status(401).send({
-                error: 'Incorrect email or password!',
-                validationError: true,
-            });
+            errors.push({error: 'Incorrect email or password!'});
+            res.status(401).send(errors);
         } else {
             if (!bcrypt.compareSync(pass, user.password)) {
-                res.status(401).send({error: 'Incorrect email or password!'});
+                errors.push({error: 'Incorrect email or password!'});
+                res.status(401).send(errors);
             } else {
-                const payload = {email};
-                const token = jwt.sign(payload, process.env.SECRET, {
+                const usr = {
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    days: user.days,
+                };
+                const token = jwt.sign({user: usr}, process.env.SECRET, {
                     expiresIn: '1h',
                 });
-                res.cookie('token', token, {httpOnly: true}).sendStatus(200);
+                res.status(200).json({token, usr});
             }
         }
     });
@@ -149,9 +154,15 @@ router.post('/register', (req, res) => {
     }
 });
 
-//Dashboard
-router.get('/users/dashboard', withAuth, (req, res) => {
-    res.send('got ze zegret');
+//Token authentication
+router.get('/auth', verifyToken, (req, res) => {
+    jwt.verify(req.token, process.env.SECRET, (err, authData) => {
+        if (err) {
+            res.sendStatus(403);
+        } else {
+            res.status(200).json({message: 'verified'});
+        }
+    });
 });
 
 module.exports = router;

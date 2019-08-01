@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Redirect} from 'react-router-dom';
 
 const RegisterForm: React.FC = () => {
@@ -10,10 +10,15 @@ const RegisterForm: React.FC = () => {
     const [email2, setEmail2] = useState('');
     const [registered, setReg] = useState(false);
     const [errors, setErrors] = useState([]);
+    const [_isMounted, setMount] = useState(false);
+
+    useEffect(() => {
+        setMount(true);
+    }, []);
 
     //Handler for inputfield changes
     const onInputChange = (e: React.FormEvent<HTMLInputElement>) => {
-        if (e.currentTarget.name === 'firstName') {
+        if (e.currentTarget.name === 'firstName' && _isMounted) {
             setFirstName(e.currentTarget.value);
         }
         if (e.currentTarget.name === 'lastName') {
@@ -38,21 +43,13 @@ const RegisterForm: React.FC = () => {
             return null;
         } else {
             const messages: Array<any> = [];
-            console.log(errors);
             errors.forEach((error: any) => {
                 messages.push(
                     <div
-                        className="alert alert-danger alert-dismissible fade show"
-                        role="alert"
-                        key={error.error}>
+                        key={error.error}
+                        className="alert alert-danger"
+                        role="alert">
                         {error.error}
-                        <button
-                            type="button"
-                            className="close"
-                            data-dismiss="alert"
-                            aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
                     </div>,
                 );
             });

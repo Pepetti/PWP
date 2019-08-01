@@ -1,10 +1,20 @@
 import React, {useState} from 'react';
 import {Redirect} from 'react-router-dom';
 
-const LoginForm: React.FC = () => {
+interface ILogin {
+    login: (
+        firstname: String,
+        lastname: String,
+        email: String,
+        days: Array<any>,
+    ) => void;
+}
+
+const LoginForm: React.FC<ILogin> = ({login}) => {
     const [email, setEmail] = useState('');
     const [pass, setPass] = useState('');
     const [success, setSuc] = useState(false);
+    const [errors, setErr] = useState([]);
 
     const onInputChange = (e: React.FormEvent<HTMLInputElement>) => {
         if (e.currentTarget.name === 'email') {
@@ -17,6 +27,7 @@ const LoginForm: React.FC = () => {
 
     const onSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        setErr([]);
         const obj = {
             email: email,
             pass: pass,
@@ -28,23 +39,54 @@ const LoginForm: React.FC = () => {
         })
             .then((res: any) => {
                 if (res.status === 200) {
-                    setSuc(true);
+                    res.json().then((body: any) => {
+                        const {firstName, lastName, email, days} = body.usr;
+                        const token = body.token;
+                        login(firstName, lastName, email, days);
+                        sessionStorage.setItem('Auth', token);
+                        setSuc(true);
+                    });
+                }
+                if (res.status === 401) {
+                    res.json().then((body: any) => {
+                        setErr(body);
+                    });
                 }
             })
             .catch(err => {
                 console.error(err);
-                console.log(err.status);
                 alert('Error while logging in. Try again');
             });
     };
 
+    const validationErrors = () => {
+        if (errors.length === 0) {
+            return null;
+        } else {
+            const messages: Array<any> = [];
+            errors.forEach((error: any) => {
+                messages.push(
+                    <div
+                        key={error.error}
+                        className="alert alert-danger"
+                        role="alert">
+                        {error.error}
+                    </div>,
+                );
+            });
+            return messages;
+        }
+    };
+
     if (success) {
+        console.log(success);
         return <Redirect to={'/users/dashboard'} />;
     }
 
     return (
         <div className="loginform-container">
             <form className="loginform" onSubmit={onSubmit}>
+                <div className="loginform-group">{validationErrors()}</div>
                 <div className="loginform-group">
                     <input
                         className="loginform-control"
