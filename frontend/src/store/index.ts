@@ -7,7 +7,7 @@ const rootReducer = combineReducers({
     user: userReducer,
 });
 
-//export type AppState = ReturnType<typeof rootReducer>
+export type AppState = ReturnType<typeof rootReducer>;
 
 export default function configureStore() {
     //Middlewares

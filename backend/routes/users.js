@@ -44,16 +44,6 @@ router.post('/login', (req, res) => {
     });
 });
 
-//Login handle
-router.get('/login', (req, res) => {
-    console.log('jee');
-});
-
-//Register page
-router.get('/register', (req, res) => {
-    res.send('Register');
-});
-
 //Register handle
 router.post('/register', (req, res) => {
     const {firstName, lastName, email, password, password2, email2} = req.body;
@@ -154,13 +144,18 @@ router.post('/register', (req, res) => {
     }
 });
 
+//Logout handle
+router.get('/logout', verifyToken, (req, res) => {
+    res.sendStatus(200);
+});
+
 //Token authentication
 router.get('/auth', verifyToken, (req, res) => {
     jwt.verify(req.token, process.env.SECRET, (err, authData) => {
         if (err) {
             res.sendStatus(403);
         } else {
-            res.status(200).json({message: 'verified'});
+            res.sendStatus(200);
         }
     });
 });

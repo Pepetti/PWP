@@ -1,19 +1,21 @@
 import './App.css';
 
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
-import React from 'react';
 import {connect} from 'react-redux';
+import React from 'react';
 
+import {login} from './store/user/actions';
+import {AppState} from './store';
+import {IUser} from './store/user/types';
+import Auth from './components/auth/Auth';
+import Dashboard from './pages/dashboard/Dashboard';
 import Home from './pages/home/Home';
 import Login from './pages/login/Login';
 import Register from './pages/register/Register';
-import Dashboard from './pages/dashboard/Dashboard';
-import Auth from './components/auth/Auth';
-
-import {login} from './store/user/actions';
 
 interface IApp {
     login: typeof login;
+    user: IUser;
 }
 
 class App extends React.Component<IApp> {
@@ -34,7 +36,7 @@ class App extends React.Component<IApp> {
     render() {
         return (
             <Router>
-                <div className="App">
+                <div className="App" style={{height: '100%'}}>
                     <Switch>
                         <Route path="/" exact component={Home} />
                         <Route
@@ -58,7 +60,11 @@ class App extends React.Component<IApp> {
     }
 }
 
+const mapStateToProps = (state: AppState) => ({
+    user: state.user,
+});
+
 export default connect(
-    null,
+    mapStateToProps,
     {login},
 )(App);

@@ -1,17 +1,27 @@
 import React from 'react';
+import {connect} from 'react-redux';
 
-const Dashboard: React.FC = () => {
-    const press = () => {
-        console.log(sessionStorage.getItem('token'));
-    };
+import {AppState} from '../../store';
+import {IUser} from '../../store/user/types';
+import Nav from '../../components/nav/Nav';
 
+interface IDash {
+    user: IUser;
+}
+
+const Dashboard: React.FC<IDash> = ({user}) => {
     return (
-        <div>
-            <button type="button" onClick={press}>
-                Logout
-            </button>
-        </div>
+        <>
+            <Nav firstName={user.firstName} lastName={user.lastName} />
+        </>
     );
 };
 
-export default Dashboard;
+const mapStateToProps = (state: AppState) => ({
+    user: state.user,
+});
+
+export default connect(
+    mapStateToProps,
+    {},
+)(Dashboard);

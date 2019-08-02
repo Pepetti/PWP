@@ -4,6 +4,7 @@ import {Redirect} from 'react-router-dom';
 function Auth<T>(Component: React.ComponentType<T>) {
     return class extends React.Component<T> {
         state = {loading: true, redirect: false};
+
         async componentDidMount() {
             const token = sessionStorage.getItem('Auth');
             fetch('/users/auth', {
