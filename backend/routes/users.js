@@ -2,6 +2,14 @@
  * @file users.js
  * @description Contains routes for user functionality
  */
+
+//TODO Create handle for logging out (revoke tokens)
+//TODO Create handle for creating a new day (on first activity create for a given day)
+//TODO Create a handle for deleting a day
+//TODO create a handle for deleting and modifying a avtivity
+//TODO create a handle for deleting and modifying a routine
+//TODO Create a handle for modifying user information (password etc)
+
 require('dotenv').config();
 const express = require('express');
 const router = express.Router();
