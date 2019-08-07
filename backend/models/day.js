@@ -10,7 +10,7 @@ const ActivitySchema = require('./activity.js');
 //The day schema
 const DaySchema = new Schema({
     //Date in format "23062019" (ddmmyyyy). Days are unique
-    date: String,
+    date: {type: String, unique: true},
     activities: [ActivitySchema], //Day contains activities
 });
 

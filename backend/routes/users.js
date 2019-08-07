@@ -3,7 +3,7 @@
  * @description Contains routes for user functionality
  */
 
-//TODO Create handle for logging out (revoke tokens)
+//TODO Create handle for logging out (revoke tokens) MAYBE LATER
 //TODO Create handle for creating a new day (on first activity create for a given day)
 //TODO Create a handle for deleting a day
 //TODO create a handle for deleting and modifying a avtivity
@@ -17,8 +17,9 @@ const User = require('../models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const verifyToken = require('../config/verifyToken');
+const utils = require('../utils/utils.js');
 
-//Login page
+//Login handle
 router.post('/login', (req, res) => {
     const {email, pass} = req.body;
     let errors = [];
@@ -30,6 +31,7 @@ router.post('/login', (req, res) => {
                 validationError: false,
             });
         } else if (!user) {
+            console.log('!user');
             errors.push({error: 'Incorrect email or password!'});
             res.status(401).send(errors);
         } else {
@@ -155,6 +157,47 @@ router.post('/register', (req, res) => {
 //Logout handle
 router.get('/logout', verifyToken, (req, res) => {
     res.sendStatus(200);
+});
+
+//Activity creation handle. If date doesn't exists (nothing has been done on the given day)
+//we create the day object
+router.post('/day/activity', verifyToken, (req, res) => {
+    let tempDate = null;
+    const {date, activity, email} = req.body;
+    //console.log(new Date().toISOString().split('T')[0]);
+    User.findOne({email: email}).then(user => {
+        tempDate = user.days.filter(day => {
+            return day.date === date;
+        });
+        if (tempDate.length === 0) {
+            const dateObj = {
+                date: date,
+                activities: activity,
+            };
+            user.days.push(dateObj);
+            user.save().then(() => {
+                res.sendStatus(200);
+            });
+        } else {
+            let index = null;
+            user.days.filter(day => {
+                if (day.date === date) {
+                    console.log(user.days.indexOf(day));
+                    index = user.days.indexOf(day);
+                } else {
+                    index = null;
+                }
+            });
+            if (index === null) {
+                res.sendStatus(500);
+            } else {
+                user.days[index].activities.push(activity);
+                user.save().then(() => {
+                    res.sendStatus(200);
+                });
+            }
+        }
+    });
 });
 
 //Token authentication
