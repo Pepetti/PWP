@@ -57,7 +57,7 @@ router.post('/login', (req, res) => {
 //Register handle
 router.post('/register', (req, res) => {
     const {firstName, lastName, email, password, password2, email2} = req.body;
-    const errors = [];
+    let errors = [];
     if (
         !firstName ||
         !lastName ||
