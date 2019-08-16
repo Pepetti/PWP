@@ -10,7 +10,7 @@ const generators = require('../generators');
 const autoincrement = require('mongoose-sequence')(mongoose);
 
 //Connect to mongoDB database
-mongoose.connect(process.env.MONGODB_URI, {
+mongoose.connect(process.env.MONGODB_TEST_URI, {
     useNewUrlParser: true,
     useFindAndModify: false,
     useCreateIndex: true,
@@ -90,6 +90,7 @@ afterEach(done => {
     console.log('Dropping user after test...');
     mongoose.connection.collections.users.drop(() => {
         console.log('User dropped after test...');
+        console.log('*****************************************')
         done();
     });
 });
