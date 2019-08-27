@@ -4,11 +4,11 @@
  */
 
 //TODO Create handle for logging out (revoke tokens) MAYBE LATER
-//TODO Create handle for creating a new day (on first activity create for a given day)
-//TODO Create a handle for deleting a day
-//TODO create a handle for deleting and modifying a avtivity
-//TODO create a handle for deleting and modifying a routine
-//TODO Create a handle for modifying user information (password etc)
+//TODO Create a handle for modifying an activity
+//TODO create a handle for deleting a routine
+//TODO create a handle for modifying a routine
+//TODO create a handle for adding a routine
+//TODO Create a handle for modifying user information (password etc) MAYBE LATER, NOT MANDATORY ATM
 
 require('dotenv').config();
 const express = require('express');
@@ -154,17 +154,13 @@ router.post('/register', (req, res) => {
     }
 });
 
-//Logout handle
-router.get('/logout', verifyToken, (req, res) => {
-    res.sendStatus(200);
-});
-
 //Activity creation handle. If date doesn't exists (nothing has been done on the given day)
 //we create the day object
 router.post('/day/activity', verifyToken, (req, res) => {
     let tempDate = null;
     const {date, activity, email} = req.body;
     //console.log(new Date().toISOString().split('T')[0]);
+    //^ tuo frontendin puolelle
     User.findOne({email: email}).then(user => {
         tempDate = user.days.filter(day => {
             return day.date === date;
@@ -184,8 +180,6 @@ router.post('/day/activity', verifyToken, (req, res) => {
                 if (day.date === date) {
                     console.log(user.days.indexOf(day));
                     index = user.days.indexOf(day);
-                } else {
-                    index = null;
                 }
             });
             if (index === null) {
@@ -198,6 +192,102 @@ router.post('/day/activity', verifyToken, (req, res) => {
             }
         }
     });
+});
+
+//Handle for removing an activity
+router.delete('/day/activity', verifyToken, (req, res) => {
+    const {email, date, activityID} = req.body;
+    let errors = [];
+    let tempDate = null;
+    let index = null;
+    User.findOne({email: email}).then(user => {
+        if (user === null) {
+            erros.push({error: 'User not found'});
+            res.status(404).send(errors);
+        }
+        tempDate = user.days.filter(day => {
+            return day.date === date;
+        });
+        if (tempDate.length === 0) {
+            errors.push({error: 'Date not found'});
+            res.status(404).send(errors);
+        } else {
+            user.days.filter(day => {
+                if (day.date === date) {
+                    index = user.days.indexOf(day);
+                }
+            });
+            if (index === null) {
+                res.sendStatus(500);
+            } else {
+                tempDate[0].activities.remove(activityID);
+                user.days[index] = tempDate;
+                user.save().then(doc => {
+                    //For some reason the date is missing from the doc we get for the day
+                    //we just deleted an activity from, so we set it manually from the tempDate
+                    //This works so don't modify
+                    doc.days[index].date = tempDate[0].date;
+                    const usr = {
+                        firstName: doc.firstName,
+                        lastName: doc.lastName,
+                        email: doc.email,
+                        days: doc.days,
+                    };
+                    res.status(200).send(usr);
+                });
+            }
+        }
+    });
+});
+
+//TODO modify to use date id and .remove
+//Handle for removing a day
+router.delete('/day', verifyToken, (req, res) => {
+    const {date, email} = req.body;
+    let errors = [];
+    let tempDate = null;
+    User.findOne({email: email})
+        .then(user => {
+            if (user === null) {
+                errors.push({error: 'User not found'});
+                res.status(404).send(errors);
+            }
+            tempDate = user.days.filter(day => {
+                return day.date === date;
+            });
+            if (tempDate.length === 0) {
+                errors.push({error: 'Date already removed'});
+                res.status(404).send(errors);
+            } else {
+                tempDays = user.days.filter(day => {
+                    return day.date !== tempDate[0].date;
+                });
+                user.days = tempDays;
+                user.save()
+                    .then(doc => {
+                        const usr = {
+                            firstName: doc.firstName,
+                            lastName: doc.lastName,
+                            email: doc.email,
+                            days: doc.days,
+                        };
+                        res.status(200).send(usr);
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.sendStatus(500);
+                    });
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.sendStatus(500);
+        });
+});
+
+//Logout handle
+router.get('/logout', verifyToken, (req, res) => {
+    res.sendStatus(200);
 });
 
 //Token authentication
