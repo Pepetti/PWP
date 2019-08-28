@@ -43,6 +43,7 @@ router.post('/login', (req, res) => {
                     firstName: user.firstName,
                     lastName: user.lastName,
                     email: user.email,
+                    id: user._id,
                     days: user.days,
                 };
                 const token = jwt.sign({user: usr}, process.env.SECRET, {
@@ -238,6 +239,60 @@ router.delete('/day/activity', verifyToken, (req, res) => {
             }
         }
     });
+});
+
+//Handle for modifying activity
+router.patch('/day/activity', verifyToken, (req, res) => {
+    const {id, date, activityID, newActivity} = req.body;
+    let errors = [];
+    let tempDate = null;
+    let index = null;
+    let d_index = null; //Date index
+    User.findById(id)
+        .then(user => {
+            if (user === null) {
+                erros.push({error: 'User not found'});
+                res.status(404).send(errors);
+            }
+            tempDate = user.days.filter(day => {
+                if (day.date === date) {
+                    d_index = user.days.indexOf(day);
+                    return date;
+                }
+            });
+            if (tempDate.length === 0) {
+                errors.push({error: 'Date not found'});
+                res.status(404).send(errors);
+            } else {
+                tempDate[0].activities.filter(act => {
+                    if (act.activityId === activityID) {
+                        newActivity.activityId = act.activityId;
+                        index = tempDate[0].activities.indexOf(act);
+                    }
+                });
+                if (index === null) {
+                    errors.push({error: 'Activity not found'});
+                    res.status(404).send(errors);
+                } else {
+                    user.days[d_index].activities[index] = newActivity;
+                    console.log(newActivity);
+                    user.save().then(doc => {
+                        const usr = {
+                            firstName: doc.firstName,
+                            lastName: doc.lastName,
+                            _id: doc._id,
+                            email: doc.email,
+                            days: doc.days,
+                        };
+                        res.status(200).send(usr);
+                    });
+                }
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.sendStatus(500);
+        });
 });
 
 //TODO modify to use date id and .remove
