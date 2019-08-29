@@ -4,7 +4,6 @@
  */
 
 //TODO Create handle for logging out (revoke tokens) MAYBE LATER
-//TODO Create a handle for modifying an activity
 //TODO create a handle for deleting a routine
 //TODO create a handle for modifying a routine
 //TODO create a handle for adding a routine
@@ -231,6 +230,7 @@ router.delete('/day/activity', verifyToken, (req, res) => {
                     const usr = {
                         firstName: doc.firstName,
                         lastName: doc.lastName,
+                        id: doc._id,
                         email: doc.email,
                         days: doc.days,
                     };
@@ -257,7 +257,8 @@ router.patch('/day/activity', verifyToken, (req, res) => {
             tempDate = user.days.filter(day => {
                 if (day.date === date) {
                     d_index = user.days.indexOf(day);
-                    return date;
+                    //return date; //THis should be day
+                    return day;
                 }
             });
             if (tempDate.length === 0) {
@@ -295,6 +296,63 @@ router.patch('/day/activity', verifyToken, (req, res) => {
         });
 });
 
+//Handle for adding a routine to an activity
+router.post('/day/activity/routine', verifyToken, (req, res) => {
+    const {id, date, activityId, routine} = req.body;
+    let tempDate = null;
+    let d_index = null; //Date index
+    let a_index = null; //Activity index
+    let errors = [];
+    User.findById(id)
+        .then(user => {
+            if (user === null) {
+                errors.push({error: 'User not found'});
+                res.status(404).send(errors);
+            } else {
+                tempDate = user.days.filter(day => {
+                    if (day.date === date) {
+                        d_index = user.days.indexOf(day);
+                        return day;
+                    }
+                });
+                if (tempDate.length === 0) {
+                    errors.push({error: 'Date not found'});
+                    res.status(404).send(errors);
+                } else {
+                    user.days[d_index].activities.filter(activity => {
+                        if (activity.activityId === activityId) {
+                            a_index = user.days[d_index].activities.indexOf(
+                                activity,
+                            );
+                        }
+                    });
+                    if (a_index === null) {
+                        errors.push({error: 'Activity not found'});
+                        res.status(404).send(errors);
+                    } else {
+                        user.days[d_index].activities[a_index].routines.push(
+                            routine,
+                        );
+                        user.save().then(doc => {
+                            const usr = {
+                                firstName: doc.firstName,
+                                lastName: doc.lastName,
+                                _id: doc._id,
+                                email: doc.email,
+                                days: doc.days,
+                            };
+                            res.status(200).send(usr);
+                        });
+                    }
+                }
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.sendStatus(500);
+        });
+});
+
 //TODO modify to use date id and .remove
 //Handle for removing a day
 router.delete('/day', verifyToken, (req, res) => {
@@ -306,32 +364,33 @@ router.delete('/day', verifyToken, (req, res) => {
             if (user === null) {
                 errors.push({error: 'User not found'});
                 res.status(404).send(errors);
-            }
-            tempDate = user.days.filter(day => {
-                return day.date === date;
-            });
-            if (tempDate.length === 0) {
-                errors.push({error: 'Date already removed'});
-                res.status(404).send(errors);
             } else {
-                tempDays = user.days.filter(day => {
-                    return day.date !== tempDate[0].date;
+                tempDate = user.days.filter(day => {
+                    return day.date === date;
                 });
-                user.days = tempDays;
-                user.save()
-                    .then(doc => {
-                        const usr = {
-                            firstName: doc.firstName,
-                            lastName: doc.lastName,
-                            email: doc.email,
-                            days: doc.days,
-                        };
-                        res.status(200).send(usr);
-                    })
-                    .catch(err => {
-                        console.log(err);
-                        res.sendStatus(500);
+                if (tempDate.length === 0) {
+                    errors.push({error: 'Date already removed'});
+                    res.status(404).send(errors);
+                } else {
+                    tempDays = user.days.filter(day => {
+                        return day.date !== tempDate[0].date;
                     });
+                    user.days = tempDays;
+                    user.save()
+                        .then(doc => {
+                            const usr = {
+                                firstName: doc.firstName,
+                                lastName: doc.lastName,
+                                email: doc.email,
+                                days: doc.days,
+                            };
+                            res.status(200).send(usr);
+                        })
+                        .catch(err => {
+                            console.log(err);
+                            res.sendStatus(500);
+                        });
+                }
             }
         })
         .catch(err => {
