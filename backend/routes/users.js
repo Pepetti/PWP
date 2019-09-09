@@ -4,9 +4,7 @@
  */
 
 //TODO Create handle for logging out (revoke tokens) MAYBE LATER
-//TODO create a handle for deleting a routine
 //TODO create a handle for modifying a routine
-//TODO create a handle for adding a routine
 //TODO Create a handle for modifying user information (password etc) MAYBE LATER, NOT MANDATORY ATM
 
 require('dotenv').config();
@@ -333,6 +331,70 @@ router.post('/day/activity/routine', verifyToken, (req, res) => {
                         user.days[d_index].activities[a_index].routines.push(
                             routine,
                         );
+                        user.save().then(doc => {
+                            const usr = {
+                                firstName: doc.firstName,
+                                lastName: doc.lastName,
+                                _id: doc._id,
+                                email: doc.email,
+                                days: doc.days,
+                            };
+                            res.status(200).send(usr);
+                        });
+                    }
+                }
+            }
+        })
+        .catch(err => {
+            console.log(err);
+            res.sendStatus(500);
+        });
+});
+
+//Handle for deleting a routine from an activity
+router.delete('/day/activity/routine', verifyToken, (req, res) => {
+    const {id, date, activityId, routineId} = req.body;
+    let tempDate = null;
+    let tempRoutines = null;
+    let d_index = null;
+    let a_index = null;
+    let errors = [];
+    User.findById(id)
+        .then(user => {
+            if (user === null) {
+                erros.push({error: 'User not found'});
+                res.status(404).send(errors);
+            } else {
+                tempDate = user.days.filter(day => {
+                    if (day.date === date) {
+                        d_index = user.days.indexOf(day);
+                        return day;
+                    }
+                });
+                if (tempDate.length === 0) {
+                    errors.push({error: 'Date not found'});
+                    res.status(404).send(errors);
+                } else {
+                    user.days[d_index].activities.filter(activity => {
+                        if (activity.activityId === activityId) {
+                            a_index = user.days[d_index].activities.indexOf(
+                                activity,
+                            );
+                        }
+                    });
+                    if (a_index === null) {
+                        errors.push({error: 'Activity not found'});
+                        res.status(404).send(errors);
+                    } else {
+                        tempRoutines = user.days[d_index].activities[
+                            a_index
+                        ].routines.filter(routine => {
+                            console.log(routine.routineId);
+                            return routine.routineId !== routineId;
+                        });
+                        user.days[d_index].activities[
+                            a_index
+                        ].routines = tempRoutines;
                         user.save().then(doc => {
                             const usr = {
                                 firstName: doc.firstName,
