@@ -1,5 +1,5 @@
 //User
-export interface IUser {
+interface _IUser {
     firstName: String;
     lastName: String;
     email: String;
@@ -22,3 +22,4 @@ interface logout {
 }
 
 export type userActionTypes = login | logout;
+export type IUser = _IUser;

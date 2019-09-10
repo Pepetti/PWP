@@ -11,7 +11,7 @@ let initialState: IUser = {
 let persistentState = sessionStorage.getItem('state');
 if (persistentState) {
     const tempState = JSON.parse(persistentState);
-    initialState = tempState;
+    initialState = tempState.user;
 }
 
 export function userReducer(

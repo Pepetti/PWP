@@ -34,7 +34,7 @@ const Nav: React.FC<INav> = ({firstName, lastName}) => {
             <nav className="header-nav">
                 <div className="header-drawer-toggle-button"></div>
                 <div className="header-nav-brand">
-                    <span>SportsTracker</span>
+                    <a className="title-link" href="/users/dashboard">SportsTracker</a>
                 </div>
                 <div className="header-nav-spacer" />
                 <div className="header-nav-items">
