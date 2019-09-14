@@ -27,8 +27,12 @@ const Days: React.FC<IDays> = ({days}) => {
             </div>
         </div>
     ));
-    console.log(cards);
-    return <div className="container justify-content-center">{cards}</div>;
+    const te = days[2];
+    console.log(te);
+    console.log(te.activities);
+    return <div className="container justify-content-center">
+        <Today day={te}/>
+        </div>;
 };
 
 export default Days;
