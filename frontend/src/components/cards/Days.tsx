@@ -27,12 +27,12 @@ const Days: React.FC<IDays> = ({days}) => {
             </div>
         </div>
     ));
-    const te = days[2];
-    console.log(te);
-    console.log(te.activities);
-    return <div className="container justify-content-center">
-        <Today day={te}/>
-        </div>;
+
+    return (
+        <div className="container justify-content-center">
+            <Today day={findToday} />
+        </div>
+    );
 };
 
 export default Days;
