@@ -7,6 +7,7 @@ interface IToday {
 }
 
 const Today: React.FC<IToday> = ({day}) => {
+    const [aerobic, setAer] = useState(false);
     const [fields, setFields] = useState([
         {
             type: null,
@@ -15,6 +16,10 @@ const Today: React.FC<IToday> = ({day}) => {
         },
     ]);
 
+    function handleAerobic() {
+        setAer(!aerobic);
+    }
+
     function handleChange(i: number, event: any) {
         const values = [...fields];
         const valueName = event.target.name;
@@ -22,11 +27,14 @@ const Today: React.FC<IToday> = ({day}) => {
             values[i].type = event.target.value;
         } else if (valueName === 'reps') {
             values[i].reps = event.target.value;
-        } else if (valueName === 'sets') {
-            values[i].sets.push({weight: event.target.value});
         }
         setFields(values);
-        console.log(fields[i].sets);
+    }
+
+    function handleSetChange(i: number, j: number, event: any) {
+        const values = [...fields];
+        values[i].sets[j].weight = event.target.value;
+        setFields(values);
     }
 
     function handleAdd() {
@@ -39,6 +47,24 @@ const Today: React.FC<IToday> = ({day}) => {
         setFields(values);
     }
 
+    function handleSetAdd(i: number) {
+        const values = [...fields];
+        fields[i].sets.push({weight: null});
+        setFields(values);
+    }
+
+    function handleRemove(i: number) {
+        const values = [...fields];
+        values.splice(i, 1);
+        setFields(values);
+    }
+
+    function handleSetRemove(i: number, j: number) {
+        const values = [...fields];
+        values[i].sets.splice(j, 1);
+        setFields(values);
+    }
+
     let acti;
 
     if (day.length === 0 || day.activities.length === 0) {
@@ -48,11 +74,7 @@ const Today: React.FC<IToday> = ({day}) => {
                     <p>You have not done any activities today!</p>
                 </div>
                 <div className="row justify-content-center">
-                    <button
-                        type="button"
-                        className="btn btn-primary"
-                        data-toggle="modal"
-                        data-target="#addForm">
+                    <button type="button" className="btn btn-primary" data-toggle="modal" data-target="#addForm">
                         Add one now!
                     </button>
                 </div>
@@ -69,11 +91,7 @@ const Today: React.FC<IToday> = ({day}) => {
                                 <h5 className="modal-title" id="addFormLabel">
                                     Add an activity
                                 </h5>
-                                <button
-                                    type="button"
-                                    className="close"
-                                    data-dismiss="modal"
-                                    aria-label="Close">
+                                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
@@ -85,19 +103,17 @@ const Today: React.FC<IToday> = ({day}) => {
                                                 type="checkbox"
                                                 className="form-check-input"
                                                 id="aerobic"
+                                                name="aerobic"
+                                                defaultChecked={aerobic}
+                                                onChange={handleAerobic}
                                             />
-                                            <label
-                                                htmlFor="aerobic"
-                                                className="form-check-label">
+                                            <label htmlFor="aerobic" className="form-check-label">
                                                 Aerobic
                                             </label>
                                         </div>
                                     </div>
                                     <div className="form-group">
-                                        <button
-                                            type="button"
-                                            className="btn btn-primary"
-                                            onClick={() => handleAdd()}>
+                                        <button type="button" className="btn btn-primary" onClick={() => handleAdd()}>
                                             Add a new routine
                                         </button>
                                     </div>
@@ -105,12 +121,20 @@ const Today: React.FC<IToday> = ({day}) => {
                                         <ul className="list-group list-group-flush">
                                             {fields.map((field, idx) => {
                                                 return (
-                                                    <li
-                                                        key={`${field}-${idx}`}
-                                                        className="list-group-item">
-                                                        <h6>
-                                                            Routine #{idx + 1}
-                                                        </h6>
+                                                    <li key={`${field}-${idx}`} className="list-group-item">
+                                                        <div className="form-row">
+                                                            <div className="col">
+                                                                <h6>Routine #{idx + 1}</h6>
+                                                            </div>
+                                                            <div className="col justify-content-right">
+                                                                <button
+                                                                    type="button"
+                                                                    className="btn btn-danger"
+                                                                    onClick={() => handleRemove(idx)}>
+                                                                    X
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                         <div className="form-row">
                                                             <label htmlFor="type">Routine Type</label>
                                                             <input
@@ -118,18 +142,11 @@ const Today: React.FC<IToday> = ({day}) => {
                                                                 name="type"
                                                                 id="type"
                                                                 placeholder="Routine Type (Deadlift etc...)"
-                                                                value={
-                                                                    field.type ||
-                                                                    ''
-                                                                }
-                                                                onChange={e =>
-                                                                    handleChange(
-                                                                        idx,
-                                                                        e,
-                                                                    )
-                                                                }
+                                                                value={field.type || ''}
+                                                                onChange={e => handleChange(idx, e)}
+                                                                required
                                                                 style={{
-                                                                    width: '100%'
+                                                                    width: '100%',
                                                                 }}
                                                             />
                                                         </div>
@@ -142,19 +159,62 @@ const Today: React.FC<IToday> = ({day}) => {
                                                                 name="reps"
                                                                 min="0"
                                                                 max="1000"
-                                                                value={
-                                                                    field.reps ||
-                                                                    ''
-                                                                }
-                                                                onChange={e =>
-                                                                    handleChange(
-                                                                        idx,
-                                                                        e,
-                                                                    )
-                                                                }
-                                                                style={{width: '100%'}}
+                                                                value={field.reps || ''}
+                                                                onChange={e => handleChange(idx, e)}
+                                                                required
+                                                                style={{
+                                                                    width: '100%',
+                                                                }}
                                                             />
                                                         </div>
+                                                        {field.sets.map((set, setIdx) => {
+                                                            return (
+                                                                <>
+                                                                    <div className="form-row" key={`${2}-${setIdx}`}>
+                                                                        <label
+                                                                            htmlFor="set"
+                                                                            style={{marginTop: '10px'}}>
+                                                                            Set #{setIdx + 1}
+                                                                        </label>
+                                                                        <input
+                                                                            type="number"
+                                                                            name="set"
+                                                                            id="set"
+                                                                            placeholder="Weight in Kilograms (ex. 10kg)..."
+                                                                            min="0"
+                                                                            max="500"
+                                                                            value={set.weight || ''}
+                                                                            style={{width: '100%'}}
+                                                                            required
+                                                                            onChange={e =>
+                                                                                handleSetChange(idx, setIdx, e)
+                                                                            }
+                                                                        />
+                                                                    </div>
+                                                                    <div className="form-row">
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn-sm btn-primary"
+                                                                            style={{marginTop: '10px'}}
+                                                                            onClick={() => handleSetAdd(idx)}>
+                                                                            New Set
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn-sm btn-danger"
+                                                                            style={{
+                                                                                marginTop: '10px',
+                                                                                marginLeft: '5px',
+                                                                            }}
+                                                                            onClick={() =>
+                                                                                handleSetRemove(idx, setIdx)
+                                                                            }>
+                                                                            x
+                                                                        </button>
+                                                                    </div>
+                                                                </>
+                                                            );
+                                                        })}
                                                     </li>
                                                 );
                                             })}
@@ -163,15 +223,10 @@ const Today: React.FC<IToday> = ({day}) => {
                                 </form>
                             </div>
                             <div className="modal-footer">
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary"
-                                    data-dismiss="modal">
+                                <button type="button" className="btn btn-secondary" data-dismiss="modal">
                                     Cancel
                                 </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-primary">
+                                <button type="button" className="btn btn-primary">
                                     Add
                                 </button>
                             </div>
