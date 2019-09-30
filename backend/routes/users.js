@@ -56,17 +56,9 @@ router.post('/login', (req, res) => {
 router.post('/register', (req, res) => {
     const {firstName, lastName, email, password, password2, email2} = req.body;
     let errors = [];
-    if (
-        !firstName ||
-        !lastName ||
-        !email ||
-        !password ||
-        !password2 ||
-        !email2
-    ) {
+    if (!firstName || !lastName || !email || !password || !password2 || !email2) {
         res.status(500).send({
-            error:
-                'Missing parameters, please fill out all the required fields',
+            error: 'Missing parameters, please fill out all the required fields',
         });
     } else {
         if (!email.includes('@')) {
@@ -113,13 +105,9 @@ router.post('/register', (req, res) => {
                             res.status(200).send({msg: 'registered'});
                         })
                         .catch(err => {
-                            if (
-                                err.type === 'MongoError' &&
-                                err.code === 11000
-                            ) {
+                            if (err.type === 'MongoError' && err.code === 11000) {
                                 errors.push({
-                                    error:
-                                        'User already registered with this email!',
+                                    error: 'User already registered with this email!',
                                     validationError: true,
                                 });
                                 res.status(400).send({
@@ -184,8 +172,15 @@ router.post('/day/activity', verifyToken, (req, res) => {
                 res.sendStatus(500);
             } else {
                 user.days[index].activities.push(activity);
-                user.save().then(() => {
-                    res.sendStatus(200);
+                user.save().then(doc => {
+                    const usr = {
+                        firstName: doc.firstName,
+                        lastName: doc.lastName,
+                        email: doc.email,
+                        id: doc._id,
+                        days: doc.days,
+                    };
+                    res.status(200).send(usr);
                 });
             }
         }
@@ -319,18 +314,14 @@ router.post('/day/activity/routine', verifyToken, (req, res) => {
                 } else {
                     user.days[d_index].activities.filter(activity => {
                         if (activity.activityId === activityId) {
-                            a_index = user.days[d_index].activities.indexOf(
-                                activity,
-                            );
+                            a_index = user.days[d_index].activities.indexOf(activity);
                         }
                     });
                     if (a_index === null) {
                         errors.push({error: 'Activity not found'});
                         res.status(404).send(errors);
                     } else {
-                        user.days[d_index].activities[a_index].routines.push(
-                            routine,
-                        );
+                        user.days[d_index].activities[a_index].routines.push(routine);
                         user.save().then(doc => {
                             const usr = {
                                 firstName: doc.firstName,
@@ -377,24 +368,18 @@ router.delete('/day/activity/routine', verifyToken, (req, res) => {
                 } else {
                     user.days[d_index].activities.filter(activity => {
                         if (activity.activityId === activityId) {
-                            a_index = user.days[d_index].activities.indexOf(
-                                activity,
-                            );
+                            a_index = user.days[d_index].activities.indexOf(activity);
                         }
                     });
                     if (a_index === null) {
                         errors.push({error: 'Activity not found'});
                         res.status(404).send(errors);
                     } else {
-                        tempRoutines = user.days[d_index].activities[
-                            a_index
-                        ].routines.filter(routine => {
+                        tempRoutines = user.days[d_index].activities[a_index].routines.filter(routine => {
                             console.log(routine.routineId);
                             return routine.routineId !== routineId;
                         });
-                        user.days[d_index].activities[
-                            a_index
-                        ].routines = tempRoutines;
+                        user.days[d_index].activities[a_index].routines = tempRoutines;
                         user.save().then(doc => {
                             const usr = {
                                 firstName: doc.firstName,

@@ -1,12 +1,17 @@
 import React, {useState} from 'react';
 
+import {connect} from 'react-redux';
+import {login} from '../../store/user/actions';
+import {AppState} from '../../store'
+
 import Activities from './Activities';
 
 interface IToday {
     day: any;
+    email: String;
 }
 
-const Today: React.FC<IToday> = ({day}) => {
+const Today: React.FC<IToday> = ({day, email}) => {
     const [aerobic, setAer] = useState(false);
     const [fields, setFields] = useState([
         {
@@ -65,9 +70,32 @@ const Today: React.FC<IToday> = ({day}) => {
         setFields(values);
     }
 
+    function sendData() {
+        const date = new Date().toISOString().split('T')[0];
+        const dataToSend = {
+            date: date,
+            activity: {
+                aerobic: aerobic,
+                routines: fields,
+            },
+            email: email,
+        };
+
+        const token = sessionStorage.getItem('Auth');
+        const authHead = 'Bearer ' + token;
+
+        fetch('/users/day/activity', {
+            method: 'POST',
+            body: JSON.stringify(dataToSend),
+            headers: {'Content-Type': 'application/json', Authorization: authHead},
+        }).then((res: any) => {
+            console.log('ok');
+        });
+    }
+
     let acti;
 
-    if (day.length === 0 || day.activities.length === 0) {
+    if (day.length === 0 || day[0].activities.length === 0) {
         acti = (
             <div className="container">
                 <div className="row justify-content-center">
@@ -226,7 +254,7 @@ const Today: React.FC<IToday> = ({day}) => {
                                 <button type="button" className="btn btn-secondary" data-dismiss="modal">
                                     Cancel
                                 </button>
-                                <button type="button" className="btn btn-primary">
+                                <button type="button" className="btn btn-primary" onClick={() => sendData()}>
                                     Add
                                 </button>
                             </div>
@@ -236,7 +264,7 @@ const Today: React.FC<IToday> = ({day}) => {
             </div>
         );
     } else {
-        acti = <Activities activities={day.activities} today={true} />;
+        acti = <Activities activities={day[0].activities} today={true} />;
     }
 
     return (
@@ -253,4 +281,11 @@ const Today: React.FC<IToday> = ({day}) => {
     );
 };
 
-export default Today;
+const mapStateToProps = (state: AppState) => ({
+    user: state.user
+})
+
+export default connect(
+    mapStateToProps,
+    {login},
+)(Today);
