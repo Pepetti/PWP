@@ -4,6 +4,7 @@ interface _IUser {
     lastName: String;
     email: String;
     days: Array<any>;
+    id: String;
 }
 
 //Action types
@@ -22,5 +23,10 @@ interface logout {
     payload: IUser;
 }
 
-export type userActionTypes = login | logout;
+interface updateUser{
+    type: typeof UPDATE_USER;
+    payload: IUser;
+}
+
+export type userActionTypes = login | logout | updateUser;
 export type IUser = _IUser;

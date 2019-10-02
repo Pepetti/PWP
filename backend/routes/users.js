@@ -143,6 +143,7 @@ router.post('/register', (req, res) => {
 //Activity creation handle. If date doesn't exists (nothing has been done on the given day)
 //we create the day object
 router.post('/day/activity', verifyToken, (req, res) => {
+    console.log('Came to the right place for adding an activity');
     let tempDate = null;
     const {date, activity, email} = req.body;
     //console.log(new Date().toISOString().split('T')[0]);
@@ -157,8 +158,16 @@ router.post('/day/activity', verifyToken, (req, res) => {
                 activities: activity,
             };
             user.days.push(dateObj);
-            user.save().then(() => {
-                res.sendStatus(200);
+            user.save().then(doc => {
+                const usr = {
+                    firstName: doc.firstName,
+                    lastName: doc.lastName,
+                    email: doc.email,
+                    id: doc._id,
+                    days: doc.days,
+                };
+                console.log(usr);
+                res.status(200).json({usr});
             });
         } else {
             let index = null;
@@ -180,7 +189,8 @@ router.post('/day/activity', verifyToken, (req, res) => {
                         id: doc._id,
                         days: doc.days,
                     };
-                    res.status(200).send(usr);
+                    console.log(usr);
+                    res.status(200).json({usr});
                 });
             }
         }

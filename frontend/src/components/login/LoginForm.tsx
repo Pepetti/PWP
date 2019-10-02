@@ -7,6 +7,7 @@ interface ILogin {
         lastname: String,
         email: String,
         days: Array<any>,
+        id: String
     ) => void;
 }
 
@@ -40,9 +41,9 @@ const LoginForm: React.FC<ILogin> = ({login}) => {
             .then((res: any) => {
                 if (res.status === 200) {
                     res.json().then((body: any) => {
-                        const {firstName, lastName, email, days} = body.usr;
+                        const {firstName, lastName, email, days, id} = body.usr;
                         const token = body.token;
-                        login(firstName, lastName, email, days);
+                        login(firstName, lastName, email, days, id);
                         sessionStorage.setItem('Auth', token);
                         setSuc(true);
                     });
@@ -79,7 +80,6 @@ const LoginForm: React.FC<ILogin> = ({login}) => {
     };
 
     if (success) {
-        console.log(success);
         return <Redirect to={'/users/dashboard'} />;
     }
 

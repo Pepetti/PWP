@@ -24,12 +24,14 @@ class App extends React.Component<IApp> {
         lastname: String,
         email: String,
         days: Array<any>,
+        id: String
     ) => {
         this.props.login({
             firstName: firstname,
             lastName: lastname,
             email: email,
             days: days,
+            id: id
         });
     };
 

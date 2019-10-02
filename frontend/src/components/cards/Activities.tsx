@@ -1,11 +1,16 @@
 import React from 'react';
+import {connect} from 'react-redux';
+
+import {updateUser} from '../../store/user/actions';
+import {AppState} from '../../store';
 
 interface IAct {
     activities: any;
     today: boolean;
+    updateUser: typeof updateUser;
 }
 
-const Activities: React.FC<IAct> = ({activities, today}) => {
+const Activities: React.FC<IAct> = ({activities, today, updateUser}) => {
     const weights = (idx: number, routineIdx: number) => {
         let we = '';
         const len = activities[idx].routines[routineIdx].sets.length;
@@ -90,4 +95,7 @@ const Activities: React.FC<IAct> = ({activities, today}) => {
     return <div className="row justify-content-center">{Acts}</div>;
 };
 
-export default Activities;
+export default connect(
+    null,
+    {updateUser},
+)(Activities);

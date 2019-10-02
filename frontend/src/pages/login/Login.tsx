@@ -10,6 +10,7 @@ interface ILoginPage {
         lastname: String,
         email: String,
         days: Array<any>,
+        id: String
     ) => void;
 }
 

@@ -8,13 +8,10 @@ interface IDays {
 }
 
 const Days: React.FC<IDays> = ({days, email}) => {
-    //console.log(new Date().toISOString().split('T')[0]);
     const today = new Date().toISOString().split('T')[0];
     const findToday = days.filter(day => {
         return day.date === today;
     });
-    //console.log(findToday);
-    //const test = new Date(days[0].date).toISOString().split('T')[0]
 
     const cards = days.map(day => (
         <div className="row justify-content-center" key={day._id}>
