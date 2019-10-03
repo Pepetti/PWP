@@ -143,11 +143,8 @@ router.post('/register', (req, res) => {
 //Activity creation handle. If date doesn't exists (nothing has been done on the given day)
 //we create the day object
 router.post('/day/activity', verifyToken, (req, res) => {
-    console.log('Came to the right place for adding an activity');
     let tempDate = null;
     const {date, activity, email} = req.body;
-    //console.log(new Date().toISOString().split('T')[0]);
-    //^ tuo frontendin puolelle
     User.findOne({email: email}).then(user => {
         tempDate = user.days.filter(day => {
             return day.date === date;
@@ -166,14 +163,12 @@ router.post('/day/activity', verifyToken, (req, res) => {
                     id: doc._id,
                     days: doc.days,
                 };
-                console.log(usr);
                 res.status(200).json({usr});
             });
         } else {
             let index = null;
             user.days.filter(day => {
                 if (day.date === date) {
-                    console.log(user.days.indexOf(day));
                     index = user.days.indexOf(day);
                 }
             });
@@ -189,7 +184,6 @@ router.post('/day/activity', verifyToken, (req, res) => {
                         id: doc._id,
                         days: doc.days,
                     };
-                    console.log(usr);
                     res.status(200).json({usr});
                 });
             }
@@ -203,6 +197,7 @@ router.delete('/day/activity', verifyToken, (req, res) => {
     let errors = [];
     let tempDate = null;
     let index = null;
+    let newActivities = null;
     User.findOne({email: email}).then(user => {
         if (user === null) {
             erros.push({error: 'User not found'});
@@ -223,8 +218,16 @@ router.delete('/day/activity', verifyToken, (req, res) => {
             if (index === null) {
                 res.sendStatus(500);
             } else {
-                tempDate[0].activities.remove(activityID);
-                user.days[index] = tempDate;
+                try {
+                    //tempDate[0].activities.remove(activityID);
+                    newActivities = tempDate[0].activities.filter(acti => {
+                        return acti.activityId !== activityID;
+                    });
+                    console.log(newActivities);
+                } catch (err) {
+                    console.log(err);
+                }
+                user.days[index].activities = newActivities;
                 user.save().then(doc => {
                     //For some reason the date is missing from the doc we get for the day
                     //we just deleted an activity from, so we set it manually from the tempDate
@@ -237,7 +240,7 @@ router.delete('/day/activity', verifyToken, (req, res) => {
                         email: doc.email,
                         days: doc.days,
                     };
-                    res.status(200).send(usr);
+                    res.status(200).json({usr});
                 });
             }
         }
@@ -260,7 +263,6 @@ router.patch('/day/activity', verifyToken, (req, res) => {
             tempDate = user.days.filter(day => {
                 if (day.date === date) {
                     d_index = user.days.indexOf(day);
-                    //return date; //THis should be day
                     return day;
                 }
             });
@@ -355,41 +357,42 @@ router.post('/day/activity/routine', verifyToken, (req, res) => {
 //Handle for deleting a routine from an activity
 router.delete('/day/activity/routine', verifyToken, (req, res) => {
     const {id, date, activityId, routineId} = req.body;
-    let tempDate = null;
-    let tempRoutines = null;
-    let d_index = null;
-    let a_index = null;
-    let errors = [];
-    User.findById(id)
+    let tempDate = null; //Temporary date object
+    let tempRoutines = null; //Temporary date object
+    let d_index = null; //Date index
+    let a_index = null; //Activity index
+    let errors = []; //Error array
+    User.findById(id) //Find user by user _id
         .then(user => {
-            if (user === null) {
+            if (user === null) { //If user is null we didn't find a user
                 erros.push({error: 'User not found'});
                 res.status(404).send(errors);
             } else {
                 tempDate = user.days.filter(day => {
                     if (day.date === date) {
                         d_index = user.days.indexOf(day);
-                        return day;
+                        return day; // Return the day object to be modified
                     }
                 });
-                if (tempDate.length === 0) {
+                if (tempDate.length === 0) { //If the tempdate length 0, there is no day
                     errors.push({error: 'Date not found'});
                     res.status(404).send(errors);
                 } else {
                     user.days[d_index].activities.filter(activity => {
                         if (activity.activityId === activityId) {
-                            a_index = user.days[d_index].activities.indexOf(activity);
+                            a_index = user.days[d_index].activities.indexOf(activity); // Get activity index
                         }
                     });
-                    if (a_index === null) {
+                    if (a_index === null) { //If activity index is still null, the activity id cannot be found
                         errors.push({error: 'Activity not found'});
                         res.status(404).send(errors);
                     } else {
+                        //Form a new array that does not have the routine desired for deletion
                         tempRoutines = user.days[d_index].activities[a_index].routines.filter(routine => {
-                            console.log(routine.routineId);
                             return routine.routineId !== routineId;
                         });
                         user.days[d_index].activities[a_index].routines = tempRoutines;
+                        //Save the modified user and send the updated user object
                         user.save().then(doc => {
                             const usr = {
                                 firstName: doc.firstName,
@@ -398,7 +401,7 @@ router.delete('/day/activity/routine', verifyToken, (req, res) => {
                                 email: doc.email,
                                 days: doc.days,
                             };
-                            res.status(200).send(usr);
+                            res.status(200).json({usr}); //Send response and user object as json
                         });
                     }
                 }
@@ -410,7 +413,6 @@ router.delete('/day/activity/routine', verifyToken, (req, res) => {
         });
 });
 
-//TODO modify to use date id and .remove
 //Handle for removing a day
 router.delete('/day', verifyToken, (req, res) => {
     const {date, email} = req.body;
@@ -440,8 +442,9 @@ router.delete('/day', verifyToken, (req, res) => {
                                 lastName: doc.lastName,
                                 email: doc.email,
                                 days: doc.days,
+                                id: doc._id,
                             };
-                            res.status(200).send(usr);
+                            res.status(200).json({usr});
                         })
                         .catch(err => {
                             console.log(err);

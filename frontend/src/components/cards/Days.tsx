@@ -5,9 +5,10 @@ import Today from './Today';
 interface IDays {
     days: Array<any>;
     email: String;
+    id: String;
 }
 
-const Days: React.FC<IDays> = ({days, email}) => {
+const Days: React.FC<IDays> = ({days, email, id}) => {
     const today = new Date().toISOString().split('T')[0];
     const findToday = days.filter(day => {
         return day.date === today;
@@ -26,7 +27,7 @@ const Days: React.FC<IDays> = ({days, email}) => {
 
     return (
         <div className="container justify-content-center">
-            <Today day={findToday} email={email}/>
+            <Today day={findToday} email={email} id={id}/>
         </div>
     );
 };

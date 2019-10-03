@@ -17,9 +17,10 @@ interface IToday {
     day: any;
     email: String;
     updateUser: typeof updateUser;
+    id: String;
 }
 
-const Today: React.FC<IToday> = ({day, email, updateUser}) => {
+const Today: React.FC<IToday> = ({day, email, id, updateUser}) => {
     const [aerobic, setAer] = useState(false);
     const [fields, setFields] = useState([
         {
@@ -106,7 +107,6 @@ const Today: React.FC<IToday> = ({day, email, updateUser}) => {
             } else if (res.status === 200) {
                 res.json().then((body: any) => {
                     const {firstName, lastName, email, days, id} = body.usr;
-                    console.log(firstName);
                     newUsr = {
                         firstName: firstName,
                         lastName: lastName,
@@ -116,6 +116,46 @@ const Today: React.FC<IToday> = ({day, email, updateUser}) => {
                     };
                     updateUser(newUsr);
                 });
+            }
+        });
+    }
+
+    function removeDay() {
+        const date = new Date().toISOString().split('T')[0];
+        const dataToSend = {
+            date: date,
+            email: email,
+        };
+
+        const token = sessionStorage.getItem('Auth');
+        const authHead = 'Bearer ' + token;
+
+        fetch('/users/day', {
+            method: 'DELETE',
+            body: JSON.stringify(dataToSend),
+            headers: {'Content-Type': 'application/json', Authorization: authHead},
+        }).then((res: any) => {
+            if (res.status === 404) {
+                alert('DAY NOT FOUND');
+                console.log(date);
+                const a = res.json().then((body: any) => {
+                    console.log(body);
+                });
+            } else if (res.status === 200) {
+                res.json().then((body: any) => {
+                    const {firstName, lastName, email, days, id} = body.usr;
+                    newUsr = {
+                        firstName: firstName,
+                        lastName: lastName,
+                        email: email,
+                        days: days,
+                        id: id,
+                    };
+                    updateUser(newUsr);
+                });
+            } else if (res.status === 500) {
+                console.log(res);
+                alert('SOMETHING WENT WRONG');
             }
         });
     }
@@ -296,7 +336,7 @@ const Today: React.FC<IToday> = ({day, email, updateUser}) => {
             </div>
         );
     } else {
-        acti = <Activities activities={day[0].activities} today={true} />;
+        acti = <Activities activities={day[0].activities} today={true} email={email} id={id}/>;
         hasActi = true;
     }
 
@@ -305,15 +345,24 @@ const Today: React.FC<IToday> = ({day, email, updateUser}) => {
             <div className="card" style={{width: '50rem', paddingTop: '50px'}}>
                 <div className="card-body">
                     <div className="row justify-content-center">
-                        <h5 className="card-title">Today</h5>
+                        <div className="col-4">
+                            <h5 className="card-title">Today</h5>
+                        </div>
+                        {hasActi ? (
+                            <div className="col-3">
+                                <button className="btn btn-warning" onClick={() => removeDay()}>
+                                    Remove Day
+                                </button>
+                            </div>
+                        ) : null}
                     </div>
                     <div className="row justify-content-center">{acti}</div>
                 </div>
                 {hasActi ? (
                     <div className="card-body">
-                    <button type="button" className="btn btn-primary" data-toggle="modal" data-target="#addForm2">
-                        Add New Activity
-                    </button>
+                        <button type="button" className="btn btn-primary" data-toggle="modal" data-target="#addForm2">
+                            Add New Activity
+                        </button>
                     </div>
                 ) : (
                     <></>

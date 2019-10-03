@@ -15,7 +15,7 @@ const Dashboard: React.FC<IDash> = ({user}) => {
         <>
             <Nav firstName={user.firstName} lastName={user.lastName} />
             <main style={{marginTop: '64px'}}>
-                <Days days={user.days} email={user.email} />
+                <Days days={user.days} email={user.email} id={user.id} />
             </main>
         </>
     );
