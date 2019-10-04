@@ -146,7 +146,7 @@ router.post('/day/activity', verifyToken, (req, res) => {
     let tempDate = null;
     const {date, activity, email} = req.body;
     User.findOne({email: email}).then(user => {
-        if user === null {
+        if (user === null) {
             res.sendStatus(404);
         }
         tempDate = user.days.filter(day => {
@@ -341,11 +341,11 @@ router.post('/day/activity/routine', verifyToken, (req, res) => {
                             const usr = {
                                 firstName: doc.firstName,
                                 lastName: doc.lastName,
-                                _id: doc._id,
+                                id: doc._id,
                                 email: doc.email,
                                 days: doc.days,
                             };
-                            res.status(200).send(usr);
+                            res.status(200).json({usr});
                         });
                     }
                 }
@@ -367,8 +367,9 @@ router.delete('/day/activity/routine', verifyToken, (req, res) => {
     let errors = []; //Error array
     User.findById(id) //Find user by user _id
         .then(user => {
-            if (user === null) { //If user is null we didn't find a user
-                erros.push({error: 'User not found'});
+            if (user === null) {
+                //If user is null we didn't find a user
+                errors.push({error: 'User not found'});
                 res.status(404).send(errors);
             } else {
                 tempDate = user.days.filter(day => {
@@ -377,7 +378,8 @@ router.delete('/day/activity/routine', verifyToken, (req, res) => {
                         return day; // Return the day object to be modified
                     }
                 });
-                if (tempDate.length === 0) { //If the tempdate length 0, there is no day
+                if (tempDate.length === 0) {
+                    //If the tempdate length 0, there is no day
                     errors.push({error: 'Date not found'});
                     res.status(404).send(errors);
                 } else {
@@ -386,7 +388,8 @@ router.delete('/day/activity/routine', verifyToken, (req, res) => {
                             a_index = user.days[d_index].activities.indexOf(activity); // Get activity index
                         }
                     });
-                    if (a_index === null) { //If activity index is still null, the activity id cannot be found
+                    if (a_index === null) {
+                        //If activity index is still null, the activity id cannot be found
                         errors.push({error: 'Activity not found'});
                         res.status(404).send(errors);
                     } else {
@@ -400,7 +403,7 @@ router.delete('/day/activity/routine', verifyToken, (req, res) => {
                             const usr = {
                                 firstName: doc.firstName,
                                 lastName: doc.lastName,
-                                _id: doc._id,
+                                id: doc._id,
                                 email: doc.email,
                                 days: doc.days,
                             };

@@ -11,6 +11,7 @@ type IDash = {
 };
 
 const Dashboard: React.FC<IDash> = ({user}) => {
+    console.log(user.id)
     return (
         <>
             <Nav firstName={user.firstName} lastName={user.lastName} />

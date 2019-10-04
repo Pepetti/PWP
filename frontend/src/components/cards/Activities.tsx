@@ -13,11 +13,16 @@ interface IAct {
 }
 
 const Activities: React.FC<IAct> = ({activities, today, email, id, updateUser}) => {
+    console.log(id)
     const [fields, setFields] = useState({
         type: null,
         reps: null,
         sets: [{weight: null}],
     });
+    const [routineType, setRoutineType] = useState(null);
+    const [reps, setReps] = useState(null);
+    const [sets, setSets] = useState(null)
+
 
     const weights = (idx: number, routineIdx: number) => {
         let we = '';
@@ -37,14 +42,14 @@ const Activities: React.FC<IAct> = ({activities, today, email, id, updateUser}) 
     };
 
     function handleChange(e: any) {
-        const values = fields;
         const valueName = e.target.name;
         if (valueName === 'type') {
-            values.type = e.target.value;
+            setRoutineType(e.target.value)
         } else if (valueName === 'reps') {
-            values.reps = e.target.value;
+            setReps(e.target.value);
+        }else if(valueName === 'set'){
+            setSets(e.target.value)
         }
-        setFields(values);
     }
 
     function handleSetChange(e: any, idx: number) {
@@ -135,8 +140,13 @@ const Activities: React.FC<IAct> = ({activities, today, email, id, updateUser}) 
             date: date,
             id: id,
             activityId: AID,
-            routine: fields,
+            routine: {
+                type: routineType,
+                reps: reps,
+                sets: sets
+            },
         };
+        console.log(dataToSend)
         const token = sessionStorage.getItem('Auth');
         const authHead = 'Bearer ' + token;
 
@@ -151,7 +161,7 @@ const Activities: React.FC<IAct> = ({activities, today, email, id, updateUser}) 
                 alert('SOMETHING WENT WRONG');
             } else if (res.status === 200) {
                 res.json().then((body: any) => {
-                    const {firstName, lastName, email, days, id} = body.usr;
+                    const {firstName, lastName, email, days, id} = body.usr
                     const newUsr = {
                         firstName: firstName,
                         lastName: lastName,
@@ -265,7 +275,7 @@ const Activities: React.FC<IAct> = ({activities, today, email, id, updateUser}) 
                                             name="type"
                                             id="type"
                                             placeholder="Routine Type (Deadlift etc...)"
-                                            value={fields.type || ''}
+                                            value={routineType || ''}
                                             required
                                             onChange={e => handleChange(e)}
                                             style={{width: '100%'}}
@@ -280,7 +290,7 @@ const Activities: React.FC<IAct> = ({activities, today, email, id, updateUser}) 
                                             name="reps"
                                             min="0"
                                             max="1000"
-                                            value={fields.reps || ''}
+                                            value={reps || ''}
                                             onChange={e => handleChange(e)}
                                             required
                                             style={{width: '100%'}}
@@ -300,10 +310,10 @@ const Activities: React.FC<IAct> = ({activities, today, email, id, updateUser}) 
                                                         placeholder="Weight in Kilograms (ex 10)..."
                                                         min="0"
                                                         max="500"
-                                                        value={set.weight || ''}
+                                                        value={sets || ''}
                                                         style={{width: '100%'}}
                                                         required
-                                                        onChange={e => handleSetChange(e, addRoutineIdx)}
+                                                        onChange={e => handleChange(e)}
                                                     />
                                                 </div>
                                             </div>
