@@ -146,6 +146,9 @@ router.post('/day/activity', verifyToken, (req, res) => {
     let tempDate = null;
     const {date, activity, email} = req.body;
     User.findOne({email: email}).then(user => {
+        if user === null {
+            res.sendStatus(404);
+        }
         tempDate = user.days.filter(day => {
             return day.date === date;
         });
