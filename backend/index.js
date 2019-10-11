@@ -3,11 +3,11 @@
  * @description index file for the app
  */
 
-require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const bodyparser = require('body-parser');
-const cookieparser = require('cookie-parser');
+require("dotenv").config();
+const express = require("express");
+const mongoose = require("mongoose");
+const bodyparser = require("body-parser");
+const cookieparser = require("cookie-parser");
 
 const app = express();
 
@@ -18,18 +18,20 @@ app.use(cookieparser());
 app.use(bodyparser.json());
 
 //Routes
-app.use('/users', require('./routes/users'));
+app.use("/users", require("./routes/users"));
 
-mongoose.connect(process.env.MONGODB_URI, {
+mongoose
+  .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
     useFindAndModify: false,
-    useCreateIndex: true,
-}).catch(err => {
+    useCreateIndex: true
+  })
+  .catch(err => {
     console.log(err);
-});
+  });
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-    console.log(`Server running on ${PORT}`);
+  console.log(`Server running on ${PORT}`);
 });
