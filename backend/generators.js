@@ -3,7 +3,7 @@
  * @description File for different functions that generate things
  */
 
-const bcrypt = require("bcrypt");
+const bcrypt = require('bcrypt');
 
 /**
  * Password generation.
@@ -16,8 +16,8 @@ const bcrypt = require("bcrypt");
  */
 
 const generatePass = a => {
-  let h = bcrypt.hashSync(a, 10);
-  return h;
+    let h = bcrypt.hashSync(a, 10);
+    return h;
 };
 
 /**
@@ -29,15 +29,15 @@ const generatePass = a => {
  */
 
 const getTime = () => {
-  const d_ = new Date();
-  const d = d_.getDate().toString();
-  const m = (d_.getMonth() + 1).toString();
-  const y = d_.getFullYear().toString();
-  const date = d + m + y;
-  return date;
+    const d_ = new Date();
+    const d = d_.getDate().toString();
+    const m = (d_.getMonth() + 1).toString();
+    const y = d_.getFullYear().toString();
+    const date = d + m + y;
+    return date;
 };
 
 module.exports = {
-  generatePass,
-  getTime
+    generatePass,
+    getTime,
 };
