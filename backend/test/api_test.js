@@ -10,6 +10,7 @@ const mocha = require("mocha");
 const baseUrl = supertest("localhost:3001");
 
 let token = null;
+const email = 'example.user1@email.com';
 
 const api_login = async (request_body, endpoint) => {
   return baseUrl
@@ -187,7 +188,29 @@ describe("API_TESTING", () => {
     });
   });
 
-  //   it('Create an activity for a non existing day', done =>{
+    it('Create an activity for a non existing day', done =>{
+      const date = new Date().toISOString().split('T')[0];
+      const activity = {
+         aerobic: false,
+         routines: [
+           {
+             sets: [{weight: '20'}, {weight: '30'}],
+            reps: 12,
+            type: 'testtype'
+           },
+           {
+             sets: [{weight: '30'}, {weight: '20'}],
+             reps: 10,
+             type: 'testtype2'
+           }
+         ],
+      }
+      const bod = {date, activity, email};
+      api_post(bod, token, '/users/day/activity').then(res =>{
+        assert(res.status === 200);
+        assert(res.body.usr.days.length === 2)
+        done();
+      })
 
-  //   })
+    })
 });
