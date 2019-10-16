@@ -34,6 +34,9 @@ PORT=<The port you want to run the application on>
 ```
 If you want to populate the database with example data, you can run the `populate.js` file located in the _DL2_ directory. Keep in mind that if you run the tests after that, the database will be left empty after the tests.
 
+## Running the backend application
+To run the backend application you can run `node index.js` in the backend directory. If you have nodemon installed on your machine you can run the backend via `nodemon index.js`. Nodemon can be installed via npm with `npm i nodemon -g`.
+
 ### Testing
 At this point you propably already have ran the comman `npm install` which installs all dependencies for the application.
 After this you can run all tests with the command `npm test`. Other commands include (and give more information of the tests):
