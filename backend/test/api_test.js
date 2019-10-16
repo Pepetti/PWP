@@ -2,10 +2,8 @@
  * @file api_test.js
  * @description Tests for the backend api
  */
-const mongoose = require("mongoose");
 const assert = require("assert");
 const supertest = require("supertest");
-const mocha = require("mocha");
 
 const baseUrl = supertest("localhost:3001");
 
@@ -192,6 +190,7 @@ describe("API_TESTING", () => {
   });
 
   //-----DAYS-----//
+
   it("Create an activity for a non existing day", done => {
     const date = new Date().toISOString().split("T")[0];
     const activity = {
@@ -214,6 +213,53 @@ describe("API_TESTING", () => {
       tempUsr = res.body.usr;
       assert(res.status === 200);
       assert(res.body.usr.days.length === 2);
+      done();
+    });
+  });
+
+  it("Deletes a day", done => {
+    const date = tempUsr.days[0].date;
+    const bod = {
+      date: date,
+      email: email
+    };
+    api_delete(bod, token, "/users/day").then(res => {
+      assert(res.status === 200);
+      assert(res.body.usr.days.length === 0);
+      done();
+    });
+  });
+
+  it("Tries to delete a day with missng parameters", done => {
+    const bod = { email: email };
+    api_delete(bod, token, "/users/day").then(res => {
+      assert(res.status === 400);
+      assert(res.body.error === "Bad request, missing parameters");
+      done();
+    });
+  });
+
+  it("Tries to delete a day as a non user", done => {
+    const date = tempUsr.days[0].date;
+    const bod = {
+      date: date,
+      email: "Not a user"
+    };
+    api_delete(bod, token, "/users/day").then(res => {
+      assert(res.status === 404);
+      assert(res.body[0].error === "User not found");
+      done();
+    });
+  });
+
+  it("Tries to delete a day that does not exist or is already removed", done => {
+    const bod = {
+      date: "not a date",
+      email: email
+    };
+    api_delete(bod, token, "/users/day").then(res => {
+      assert(res.status === 404);
+      assert(res.body[0].error === "Date already removed");
       done();
     });
   });
@@ -463,6 +509,201 @@ describe("API_TESTING", () => {
         assert(res.body[0].error === "Activity not found");
         done();
       });
+    });
+  });
+
+  //-----ROUTINES-----//
+  it("Add a routine to an activity", done => {
+    //First we need to "log in"  to get the proper user id
+    const login_bod = { email: "example.user1@email.com", pass: "example1" };
+    api_login(login_bod, "/users/login").then(res => {
+      const user = res.body.usr;
+      const activityId = user.days[0].activities[0].activityId;
+      const date = user.days[0].date;
+      const routine = {
+        sets: [{ weight: 20 }, { weight: 30 }],
+        reps: 22,
+        type: "testType"
+      };
+      const bod = {
+        id: user.id,
+        date: date,
+        activityId: activityId,
+        routine: routine
+      };
+      api_post(bod, token, "/users/day/activity/routine").then(res => {
+        //If status 200, adding was succesfull
+        assert(res.status === 200);
+        done();
+      });
+    });
+  });
+
+  it("Tries to add a routine as a non user", done => {
+    //First we need to "log in"  to get the proper user id
+    const activityId = tempUsr.days[0].activities[0].activityId;
+    const date = tempUsr.days[0].date;
+    const routine = {
+      sets: [{ weight: 20 }, { weight: 30 }],
+      reps: 22,
+      type: "testType"
+    };
+    const bod = {
+      id: tempUsr.id,
+      date: date,
+      activityId: activityId,
+      routine: routine
+    };
+    api_post(bod, token, "/users/day/activity/routine").then(res => {
+      assert(res.status === 404);
+      assert(res.body[0].error === "User not found");
+      done();
+    });
+  });
+
+  it("Tries to add a rountine with falsy activity id", done => {
+    //First we need to "log in"  to get the proper user id
+    const login_bod = { email: "example.user1@email.com", pass: "example1" };
+    api_login(login_bod, "/users/login").then(res => {
+      const user = res.body.usr;
+      const date = user.days[0].date;
+      const routine = {
+        sets: [{ weight: 20 }, { weight: 30 }],
+        reps: 22,
+        type: "testType"
+      };
+      const bod = {
+        id: user.id,
+        date: date,
+        activityId: 123123123,
+        routine: routine
+      };
+      api_post(bod, token, "/users/day/activity/routine").then(res => {
+        assert(res.status === 404);
+        assert(res.body[0].error === "Activity not found");
+        done();
+      });
+    });
+  });
+
+  it("Tries to add a routine with missing parameters in the routine body", done => {
+    //First we need to "log in"  to get the proper user id
+    const login_bod = { email: "example.user1@email.com", pass: "example1" };
+    api_login(login_bod, "/users/login").then(res => {
+      const user = res.body.usr;
+      const activityId = user.days[0].activities[0].activityId;
+      const date = user.days[0].date;
+      //Routine missing reps field
+      const routine = {
+        sets: [{ weight: 20 }, { weight: 30 }],
+        type: "testType"
+      };
+      const bod = {
+        id: user.id,
+        date: date,
+        activityId: activityId,
+        routine: routine
+      };
+      api_post(bod, token, "/users/day/activity/routine").then(res => {
+        assert(res.status === 400);
+        assert(res.body.error === "Bad request, missing parameters");
+        done();
+      });
+    });
+  });
+
+  it("Tries to add a routine with missing parameters in the parent body", done => {
+    //First we need to "log in"  to get the proper user id
+    const login_bod = { email: "example.user1@email.com", pass: "example1" };
+    api_login(login_bod, "/users/login").then(res => {
+      const user = res.body.usr;
+      const activityId = user.days[0].activities[0].activityId;
+      const routine = {
+        sets: [{ weight: 20 }, { weight: 30 }],
+        reps: 22,
+        type: "testType"
+      };
+      //Bosy missing id and date fields
+      const bod = {
+        activityId: activityId,
+        routine: routine
+      };
+      api_post(bod, token, "/users/day/activity/routine").then(res => {
+        assert(res.status === 400);
+        assert(res.body.error === "Bad request, missing parameters");
+        done();
+      });
+    });
+  });
+
+  it("Deltes a routine from an activity", done => {
+    //First we need to "log in"  to get the proper user id
+    const login_bod = { email: "example.user1@email.com", pass: "example1" };
+    api_login(login_bod, "/users/login").then(res => {
+      const user = res.body.usr;
+      const activityId = user.days[0].activities[0].activityId;
+      const date = user.days[0].date;
+      const routineId = user.days[0].activities[0].routines[0].routineId;
+      const bod = {
+        id: user.id,
+        date: date,
+        activityId: activityId,
+        routineId: routineId
+      };
+      api_delete(bod, token, "/users/day/activity/routine").then(res => {
+        assert(res.status === 200);
+        done();
+      });
+    });
+  });
+
+  it("Tries to delete a routine with missing parameters", done => {
+    //First we need to "log in"  to get the proper user id
+    const login_bod = { email: "example.user1@email.com", pass: "example1" };
+    api_login(login_bod, "/users/login").then(res => {
+      const user = res.body.usr;
+      const activityId = user.days[0].activities[0].activityId;
+      const date = user.days[0].date;
+      //User id and routineId are missing from the body
+      const bod = {
+        date: date,
+        activityId: activityId
+      };
+      api_delete(bod, token, "/users/day/activity/routine").then(res => {
+        assert(res.status === 400);
+        assert(res.body.error === "Bad request, missing parameters");
+        done();
+      });
+    });
+  });
+
+  it("Tries to delete a routine as a non user", done => {
+    const login_bod = { email: "example.user1@email.com", pass: "example1" };
+    api_login(login_bod, "/users/login").then(res => {
+      const user = res.body.usr;
+      const activityId = user.days[0].activities[0].activityId;
+      const date = user.days[0].date;
+      const routineId = user.days[0].activities[0].routines[0].routineId;
+      const bod = {
+        id: tempUsr.id,
+        date: date,
+        activityId: activityId,
+        routineId: routineId
+      };
+      api_delete(bod, token, "/users/day/activity/routine").then(res => {
+        assert(res.status === 404);
+        assert(res.body[0].error === "User not found");
+        done();
+      });
+    });
+  });
+
+  //-----LOGOUT-----//
+  it("Logs out", done => {
+    const bod = {};
+    api_get(bod, token, "/users/logout").then(res => {
+      assert(res.status === 200);
+      done();
     });
   });
 });

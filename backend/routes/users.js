@@ -323,165 +323,179 @@ router.patch("/day/activity", verifyToken, (req, res) => {
 //Handle for adding a routine to an activity
 router.post("/day/activity/routine", verifyToken, (req, res) => {
   const { id, date, activityId, routine } = req.body;
-  let tempDate = null;
-  let d_index = null; //Date index
-  let a_index = null; //Activity index
-  let errors = [];
-  User.findById(id)
-    .then(user => {
-      if (user === null) {
-        errors.push({ error: "User not found" });
-        res.status(404).send(errors);
-      } else {
-        tempDate = user.days.filter(day => {
-          if (day.date === date) {
-            d_index = user.days.indexOf(day);
-            return day;
-          }
-        });
-        if (tempDate.length === 0) {
-          errors.push({ error: "Date not found" });
+  if (!id || !date || !activityId || !routine) {
+    res.status(400).send({ error: "Bad request, missing parameters" });
+  } else if (!routine.sets || !routine.reps || !routine.type) {
+    res.status(400).send({ error: "Bad request, missing parameters" });
+  } else {
+    let tempDate = null;
+    let d_index = null; //Date index
+    let a_index = null; //Activity index
+    let errors = [];
+    User.findById(id)
+      .then(user => {
+        if (user === null) {
+          errors.push({ error: "User not found" });
           res.status(404).send(errors);
         } else {
-          user.days[d_index].activities.filter(activity => {
-            if (activity.activityId === activityId) {
-              a_index = user.days[d_index].activities.indexOf(activity);
+          tempDate = user.days.filter(day => {
+            if (day.date === date) {
+              d_index = user.days.indexOf(day);
+              return day;
             }
           });
-          if (a_index === null) {
-            errors.push({ error: "Activity not found" });
+          if (tempDate.length === 0) {
+            errors.push({ error: "Date not found" });
             res.status(404).send(errors);
           } else {
-            user.days[d_index].activities[a_index].routines.push(routine);
-            user.save().then(doc => {
-              const usr = {
-                firstName: doc.firstName,
-                lastName: doc.lastName,
-                id: doc._id,
-                email: doc.email,
-                days: doc.days
-              };
-              res.status(200).json({ usr });
+            user.days[d_index].activities.filter(activity => {
+              if (activity.activityId === activityId) {
+                a_index = user.days[d_index].activities.indexOf(activity);
+              }
             });
+            if (a_index === null) {
+              errors.push({ error: "Activity not found" });
+              res.status(404).send(errors);
+            } else {
+              user.days[d_index].activities[a_index].routines.push(routine);
+              user.save().then(doc => {
+                const usr = {
+                  firstName: doc.firstName,
+                  lastName: doc.lastName,
+                  id: doc._id,
+                  email: doc.email,
+                  days: doc.days
+                };
+                res.status(200).json({ usr });
+              });
+            }
           }
         }
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      res.sendStatus(500);
-    });
+      })
+      .catch(err => {
+        console.log(err);
+        res.sendStatus(500);
+      });
+  }
 });
 
 //Handle for deleting a routine from an activity
 router.delete("/day/activity/routine", verifyToken, (req, res) => {
   const { id, date, activityId, routineId } = req.body;
-  let tempDate = null; //Temporary date object
-  let tempRoutines = null; //Temporary date object
-  let d_index = null; //Date index
-  let a_index = null; //Activity index
-  let errors = []; //Error array
-  User.findById(id) //Find user by user _id
-    .then(user => {
-      if (user === null) {
-        //If user is null we didn't find a user
-        errors.push({ error: "User not found" });
-        res.status(404).send(errors);
-      } else {
-        tempDate = user.days.filter(day => {
-          if (day.date === date) {
-            d_index = user.days.indexOf(day);
-            return day; // Return the day object to be modified
-          }
-        });
-        if (tempDate.length === 0) {
-          //If the tempdate length 0, there is no day
-          errors.push({ error: "Date not found" });
+  if (!id || !date || !activityId || !routineId) {
+    res.status(400).send({ error: "Bad request, missing parameters" });
+  } else {
+    let tempDate = null; //Temporary date object
+    let tempRoutines = null; //Temporary date object
+    let d_index = null; //Date index
+    let a_index = null; //Activity index
+    let errors = []; //Error array
+    User.findById(id) //Find user by user _id
+      .then(user => {
+        if (user === null) {
+          //If user is null we didn't find a user
+          errors.push({ error: "User not found" });
           res.status(404).send(errors);
         } else {
-          user.days[d_index].activities.filter(activity => {
-            if (activity.activityId === activityId) {
-              a_index = user.days[d_index].activities.indexOf(activity); // Get activity index
+          tempDate = user.days.filter(day => {
+            if (day.date === date) {
+              d_index = user.days.indexOf(day);
+              return day; // Return the day object to be modified
             }
           });
-          if (a_index === null) {
-            //If activity index is still null, the activity id cannot be found
-            errors.push({ error: "Activity not found" });
+          if (tempDate.length === 0) {
+            //If the tempdate length 0, there is no day
+            errors.push({ error: "Date not found" });
             res.status(404).send(errors);
           } else {
-            //Form a new array that does not have the routine desired for deletion
-            tempRoutines = user.days[d_index].activities[
-              a_index
-            ].routines.filter(routine => {
-              return routine.routineId !== routineId;
+            user.days[d_index].activities.filter(activity => {
+              if (activity.activityId === activityId) {
+                a_index = user.days[d_index].activities.indexOf(activity); // Get activity index
+              }
             });
-            user.days[d_index].activities[a_index].routines = tempRoutines;
-            //Save the modified user and send the updated user object
-            user.save().then(doc => {
-              const usr = {
-                firstName: doc.firstName,
-                lastName: doc.lastName,
-                id: doc._id,
-                email: doc.email,
-                days: doc.days
-              };
-              res.status(200).json({ usr }); //Send response and user object as json
-            });
+            if (a_index === null) {
+              //If activity index is still null, the activity id cannot be found
+              errors.push({ error: "Activity not found" });
+              res.status(404).send(errors);
+            } else {
+              //Form a new array that does not have the routine desired for deletion
+              tempRoutines = user.days[d_index].activities[
+                a_index
+              ].routines.filter(routine => {
+                return routine.routineId !== routineId;
+              });
+              user.days[d_index].activities[a_index].routines = tempRoutines;
+              //Save the modified user and send the updated user object
+              user.save().then(doc => {
+                const usr = {
+                  firstName: doc.firstName,
+                  lastName: doc.lastName,
+                  id: doc._id,
+                  email: doc.email,
+                  days: doc.days
+                };
+                res.status(200).json({ usr }); //Send response and user object as json
+              });
+            }
           }
         }
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      res.sendStatus(500);
-    });
+      })
+      .catch(err => {
+        console.log(err);
+        res.sendStatus(500);
+      });
+  }
 });
 
 //Handle for removing a day
 router.delete("/day", verifyToken, (req, res) => {
   const { date, email } = req.body;
-  let errors = [];
-  let tempDate = null;
-  User.findOne({ email: email })
-    .then(user => {
-      if (user === null) {
-        errors.push({ error: "User not found" });
-        res.status(404).send(errors);
-      } else {
-        tempDate = user.days.filter(day => {
-          return day.date === date;
-        });
-        if (tempDate.length === 0) {
-          errors.push({ error: "Date already removed" });
+  if (!date || !email) {
+    res.status(400).send({ error: "Bad request, missing parameters" });
+  } else {
+    let errors = [];
+    let tempDate = null;
+    User.findOne({ email: email })
+      .then(user => {
+        if (user === null) {
+          errors.push({ error: "User not found" });
           res.status(404).send(errors);
         } else {
-          tempDays = user.days.filter(day => {
-            return day.date !== tempDate[0].date;
+          tempDate = user.days.filter(day => {
+            return day.date === date;
           });
-          user.days = tempDays;
-          user
-            .save()
-            .then(doc => {
-              const usr = {
-                firstName: doc.firstName,
-                lastName: doc.lastName,
-                email: doc.email,
-                days: doc.days,
-                id: doc._id
-              };
-              res.status(200).json({ usr });
-            })
-            .catch(err => {
-              console.log(err);
-              res.sendStatus(500);
+          if (tempDate.length === 0) {
+            errors.push({ error: "Date already removed" });
+            res.status(404).send(errors);
+          } else {
+            tempDays = user.days.filter(day => {
+              return day.date !== tempDate[0].date;
             });
+            user.days = tempDays;
+            user
+              .save()
+              .then(doc => {
+                const usr = {
+                  firstName: doc.firstName,
+                  lastName: doc.lastName,
+                  email: doc.email,
+                  days: doc.days,
+                  id: doc._id
+                };
+                res.status(200).json({ usr });
+              })
+              .catch(err => {
+                console.log(err);
+                res.sendStatus(500);
+              });
+          }
         }
-      }
-    })
-    .catch(err => {
-      console.log(err);
-      res.sendStatus(500);
-    });
+      })
+      .catch(err => {
+        console.log(err);
+        res.sendStatus(500);
+      });
+  }
 });
 
 //Logout handle

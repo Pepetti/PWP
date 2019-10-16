@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "nodemon --exec 'mocha -R min'",
-    "api_test": "nodemon --exec 'mocha -g 'API_TESTING''"
+    "api_test": "nodemon --exec 'mocha -g 'API_TESTING''",
+    "create_test": "nodemon --exec 'mocha -g 'Creating_documents''",
+    "delete_test": "nodemon --exec 'mocha -g 'Delete_test''",
+    "read_test": "nodemon --exec 'mocha -g 'Read_test''",
+    "update_test": "nodemon --exec 'mocha -g 'Update_test''"
   },
   "author": "Oskari Kotajärvi & Pirkka-Pekka Launonen",
   "license": "MIT",
@@ -22,6 +26,7 @@
     "passport-local": "^1.0.0"
   },
   "devDependencies": {
-    "mocha": "^6.2.0"
+    "mocha": "^6.2.0",
+    "supertest": "^4.0.2"
   }
 }
