@@ -8,13 +8,16 @@ machine can be found on node [website](https://nodejs.org/en/)
 The dependencies needed for the backend are available in the package.json file. To install all the dependencies run `npm i` or `npm install` at the backend root directory.
 This will install all dependencies for you.
 
-Dependencies at the time of DL2 include:
+Dependencies at the time of final delivery include:
 - [Mongoose](https://www.npmjs.com/package/mongoose)
 - [Mongoose-sequence](https://www.npmjs.com/package/mongoose-sequence)
 - [Express](https://www.npmjs.com/package/express)
 - [Bcrypt](https://www.npmjs.com/package/bcrypt)
 - [Dotenv](https://www.npmjs.com/package/dotenv)
+- [JsonWebToken](https://www.npmjs.com/package/jsonwebtoken)
+- [Body parser](https://www.npmjs.com/package/body-parser)
 - [Mocha](https://www.npmjs.com/package/mocha) (a dev-dependency for testing)
+- [Supertest](https://www.npmjs.com/package/supertest) (a dev-dependency for testing)
 
 ### Database and version used
 This application uses the latest version of [MongoDB](https://www.mongodb.com/). The latest version of MongoDB is 4.0 at the time
@@ -27,8 +30,18 @@ from MongoDB. Keep in mind that you have to name your database as _SportsTracker
 After this you have to create a `.env` file to the backend root directory. The file has to contain the following:
 ```javascript
 MONGODB_URI=<your mongodb connect url here>
-PORT=<The port you want to run the application on> //Not yet in use
+PORT=<The port you want to run the application on>
 ```
 If you want to populate the database with example data, you can run the `populate.js` file located in the _DL2_ directory. Keep in mind that if you run the tests after that, the database will be left empty after the tests.
 
-To run tests for the database run the command `npm run test`. This will run the written tests for the database. If you want to take a closer look at the test code, they can be found in the _test_ directory.
+### Testing
+At this point you propably already have ran the comman `npm install` which installs all dependencies for the application.
+After this you can run all tests with the command `npm test`. Other commands include (and give more information of the tests):
+- `npm run api_test` runs the tests for the API
+- `npm run create_test` runs the tests for database in the scope of CREATE
+- `npm run delete_test` runs the tests for database in the scope of DELETE
+- `npm run read_test` runs the tests for the database in the scope of READ
+- `npm run update_test` runs the tests for the database in the scope of UPDATE
+
+Keep in mind that there are 50 different tests and it takes around 15-30 seconds to run them all with `npm test`
+All code for the tests can be found in the `test` directory.
