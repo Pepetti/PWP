@@ -1,3 +1,9 @@
+## TO INSTALL ALL DEPENDENCIES FOR THE FRONT END RUN `NPM INSTALL` IN THE FRONTEND DIRECTORY
+
+## IF YOU ARE HAVING TROUBLE GETTING THE FRONTEND TO RUN, INSTALL REDUX DEVTOOLS TO YOUR BROWSER
+## [DEVTOOLS FOR CHROME](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=fi)
+## [DEVTOOLS FOR FIREFOX](https://addons.mozilla.org/fi/firefox/addon/reduxdevtools/)
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
